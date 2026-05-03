@@ -9,6 +9,8 @@ export const envSchema = z.object({
     .url()
     .default("postgres://agendarhorario:agendarhorario@localhost:5432/agendarhorario"),
   WEB_ORIGIN: z.string().url().default("http://localhost:5173"),
+  ROOT_DOMAIN: z.string().min(1).default("agendarhorario.com.br"),
+  RESERVED_SUBDOMAINS: z.string().min(1).default("app,www"),
 });
 
 export type Env = z.infer<typeof envSchema>;

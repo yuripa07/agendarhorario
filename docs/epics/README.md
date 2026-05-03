@@ -9,3 +9,4 @@
 | [EPIC-005](./EPIC-005-ci-cd-pipelines/) | CI/CD pipelines | ✅ Done |
 | [EPIC-006](./EPIC-006-homelab-deploy-infra/) | Homelab deploy infra | ✅ Done |
 | [EPIC-007](./EPIC-007-documentation-foundation/) | Documentation foundation | ✅ Done |
+| [EPIC-101](./EPIC-101-tenant-resolution/) | Tenant resolution | ✅ Done |

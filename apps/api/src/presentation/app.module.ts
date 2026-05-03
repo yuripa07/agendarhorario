@@ -5,6 +5,7 @@ import { LoggerModule } from "nestjs-pino";
 import { envSchema } from "../infrastructure/config/env.schema.js";
 import { DatabaseModule } from "../infrastructure/database/database.module.js";
 import { redact } from "../infrastructure/logger/redact.js";
+import { TenancyModule } from "../tenancy/tenancy.module.js";
 import { HealthModule } from "./health/health.module.js";
 
 @Module({
@@ -33,6 +34,7 @@ import { HealthModule } from "./health/health.module.js";
       },
     ]),
     DatabaseModule,
+    TenancyModule,
     HealthModule,
   ],
 })
