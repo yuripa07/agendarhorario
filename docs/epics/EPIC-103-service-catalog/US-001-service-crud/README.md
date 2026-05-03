@@ -1,6 +1,6 @@
 # US-001: Gerenciar catálogo de serviços
 
-**Status:** 🟢 In progress
+**Status:** ✅ Done
 
 ## História
 
@@ -31,9 +31,8 @@ Como prestador administrador, quero criar e manter meus serviços para que clien
 
 | ID | Título | Status |
 |----|--------|--------|
-| [TASK-001](./TASK-001-service-domain-and-schema.md) | Criar domínio, schemas e migration | 🟡 To do |
-| [TASK-002](./TASK-002-service-repository-and-use-cases.md) | Criar repositório e use cases | 🟡 To do |
-| [TASK-003](./TASK-003-service-admin-http-api.md) | Expor API administrativa | 🟡 To do |
+| [TASK-001](./TASK-001-service-domain-and-schema.md) | Criar domínio, schemas e migration | ✅ Done |
+| [TASK-002](./TASK-002-service-repository-and-use-cases.md) | Criar repositório e use cases | ✅ Done |
+| [TASK-003](./TASK-003-service-admin-http-api.md) | Expor API administrativa | ✅ Done |
 
 ## Ver [HISTORY.md](./HISTORY.md)
-

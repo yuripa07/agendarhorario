@@ -6,6 +6,7 @@ import { AuthModule } from "../auth/auth.module.js";
 import { envSchema } from "../infrastructure/config/env.schema.js";
 import { DatabaseModule } from "../infrastructure/database/database.module.js";
 import { redact } from "../infrastructure/logger/redact.js";
+import { ServicesModule } from "../services/services.module.js";
 import { TenancyModule } from "../tenancy/tenancy.module.js";
 import { HealthModule } from "./health/health.module.js";
 
@@ -37,6 +38,7 @@ import { HealthModule } from "./health/health.module.js";
     DatabaseModule,
     TenancyModule,
     AuthModule,
+    ServicesModule,
     HealthModule,
   ],
 })

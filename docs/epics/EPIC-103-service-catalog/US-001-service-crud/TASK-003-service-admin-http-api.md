@@ -1,6 +1,6 @@
 # TASK-003: Expor API administrativa
 
-**Status:** 🟡 To do
+**Status:** ✅ Done
 **Tipo:** feature
 **Atribuído a:** Codex
 
@@ -10,14 +10,13 @@ Expor endpoints protegidos para o admin gerenciar serviços do tenant atual.
 
 ## Passos de execução
 
-1. [ ] Criar controller em `/admin/services`.
-2. [ ] Validar body e params com Zod.
-3. [ ] Usar `TenantContextService` para obter `tenantId`.
-4. [ ] Adicionar testes E2E de proteção e CRUD.
+1. [x] Criar controller em `/admin/services`.
+2. [x] Validar body e params com Zod.
+3. [x] Usar `TenantContextService` para obter `tenantId`.
+4. [x] Adicionar testes E2E de proteção e CRUD.
 
 ## Definition of Done
 
-- [ ] Endpoints exigem sessão admin.
-- [ ] `/health` permanece público.
-- [ ] Testes relevantes passando.
-
+- [x] Endpoints exigem sessão admin.
+- [x] `/health` permanece público.
+- [x] Testes relevantes passando.

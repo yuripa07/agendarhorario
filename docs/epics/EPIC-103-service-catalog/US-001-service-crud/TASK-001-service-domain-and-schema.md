@@ -1,6 +1,6 @@
 # TASK-001: Criar domínio, schemas e migration
 
-**Status:** 🟡 To do
+**Status:** ✅ Done
 **Tipo:** feature
 **Atribuído a:** Codex
 
@@ -10,14 +10,13 @@ Definir o contrato do catálogo de serviços em domínio, schemas compartilhados
 
 ## Passos de execução
 
-1. [ ] Criar schemas Zod em `packages/shared`.
-2. [ ] Criar tabela `services` com `tenant_id NOT NULL`.
-3. [ ] Gerar migration Drizzle.
-4. [ ] Adicionar testes de validação/domínio.
+1. [x] Criar schemas Zod em `packages/shared`.
+2. [x] Criar tabela `services` com `tenant_id NOT NULL`.
+3. [x] Gerar migration Drizzle.
+4. [x] Adicionar testes de validação/domínio.
 
 ## Definition of Done
 
-- [ ] Schemas exportados por `@agendarhorario/shared`.
-- [ ] Migration versionada.
-- [ ] Testes relevantes passando.
-
+- [x] Schemas exportados por `@agendarhorario/shared`.
+- [x] Migration versionada.
+- [x] Testes relevantes passando.

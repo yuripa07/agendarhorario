@@ -19,6 +19,8 @@
     "db:generate": "pnpm --filter @agendarhorario/api db:generate",
     "db:migrate": "pnpm --filter @agendarhorario/api db:migrate",
     "db:seed": "pnpm --filter @agendarhorario/api db:seed",
+    "db:studio": "pnpm run docker:dev:up && DATABASE_URL=postgres://agendarhorario:agendarhorario@localhost:5432/agendarhorario pnpm --filter @agendarhorario/api db:studio",
+    "db:studio:verbose": "pnpm run docker:dev:up && DATABASE_URL=postgres://agendarhorario:agendarhorario@localhost:5432/agendarhorario pnpm --filter @agendarhorario/api db:studio:verbose",
     "docker:dev:up": "docker compose -f docker-compose.dev.yml up -d postgres",
     "docker:dev:down": "docker compose -f docker-compose.dev.yml down",
     "changeset": "changeset"
