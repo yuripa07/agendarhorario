@@ -34,6 +34,7 @@ jobs:
           node-version: 24.15.0
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
       - run: pnpm --filter @agendarhorario/api test:e2e
       - run: pnpm --filter @agendarhorario/web exec playwright install --with-deps chromium
       - run: pnpm --filter @agendarhorario/web test:e2e

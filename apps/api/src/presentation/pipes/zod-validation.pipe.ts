@@ -8,8 +8,10 @@ import type { ZodError, ZodSchema } from "zod";
 
 @Injectable()
 export class ZodValidationPipe implements PipeTransform<unknown, unknown> {
+  constructor(private readonly schema?: ZodSchema) {}
+
   transform(value: unknown, metadata: ArgumentMetadata): unknown {
-    const schema: unknown = metadata.metatype;
+    const schema: unknown = this.schema ?? metadata.metatype;
 
     if (!isZodSchema(schema)) {
       return value;

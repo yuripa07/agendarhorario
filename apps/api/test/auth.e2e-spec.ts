@@ -3,6 +3,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import { ADMIN_SESSION_ROUTE } from "../src/auth/auth.constants.js";
 import { AppModule } from "../src/presentation/app.module.js";
+import { ADMIN_SERVICES_ROUTE } from "../src/services/services.constants.js";
 
 describe("Admin auth", () => {
   let moduleRef: TestingModule;
@@ -19,7 +20,7 @@ describe("Admin auth", () => {
   });
 
   afterAll(async () => {
-    await moduleRef.close();
+    await moduleRef?.close();
   });
 
   it("keeps health public", async () => {
@@ -28,5 +29,9 @@ describe("Admin auth", () => {
 
   it("rejects anonymous admin session requests", async () => {
     await request(server).get(`/${ADMIN_SESSION_ROUTE}`).expect(401);
+  });
+
+  it("rejects anonymous service catalog requests", async () => {
+    await request(server).get(`/${ADMIN_SERVICES_ROUTE}`).expect(401);
   });
 });

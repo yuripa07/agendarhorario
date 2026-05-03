@@ -15,6 +15,13 @@
       "when": 1777832854956,
       "tag": "0001_lonely_colossus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777835240977,
+      "tag": "0002_yellow_martin_li",
+      "breakpoints": true
     }
   ]
 }
