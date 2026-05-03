@@ -17,6 +17,9 @@ COPY packages/shared packages/shared
 RUN pnpm --filter @agendarhorario/shared build
 RUN pnpm --filter @agendarhorario/web build
 
-FROM caddy:2.10.2-alpine AS runtime
-COPY --from=build /app/apps/web/dist /usr/share/caddy
+FROM caddy:2.11.2-alpine AS runtime
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=build --chown=app:app /app/apps/web/dist /usr/share/caddy
+RUN chown -R app:app /data /config
+USER app
 EXPOSE 80
