@@ -10,3 +10,4 @@
 | [EPIC-006](./EPIC-006-homelab-deploy-infra/) | Homelab deploy infra | ✅ Done |
 | [EPIC-007](./EPIC-007-documentation-foundation/) | Documentation foundation | ✅ Done |
 | [EPIC-101](./EPIC-101-tenant-resolution/) | Tenant resolution | ✅ Done |
+| [EPIC-102](./EPIC-102-auth-admin/) | Auth admin | ✅ Done |

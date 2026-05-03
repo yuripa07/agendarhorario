@@ -8,6 +8,13 @@
       "when": 1770000000000,
       "tag": "0000_initial_tenants",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777832854956,
+      "tag": "0001_lonely_colossus",
+      "breakpoints": true
     }
   ]
 }
