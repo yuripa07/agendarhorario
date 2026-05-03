@@ -15,7 +15,6 @@
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "baseUrl": "."
+    "sourceMap": true
   }
 }

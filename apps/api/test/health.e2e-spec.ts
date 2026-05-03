@@ -2,7 +2,7 @@ import type { INestApplication } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, it } from "vitest";
 import { HealthModule } from "../src/presentation/health/health.module.js";
 
 describe("Health endpoint", () => {

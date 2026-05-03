@@ -1,2 +1,2 @@
-export * from "./schemas/tenant.js";
 export * from "./schemas/health.js";
+export * from "./schemas/tenant.js";
