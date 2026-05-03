@@ -31,8 +31,11 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}/web:latest
       - name: Notify homelab
-        if: ${{ secrets.HOMELAB_DEPLOY_WEBHOOK_URL != '' }}
+        if: ${{ env.HOMELAB_DEPLOY_WEBHOOK_URL != '' }}
+        env:
+          HOMELAB_DEPLOY_WEBHOOK_URL: ${{ secrets.HOMELAB_DEPLOY_WEBHOOK_URL }}
+          HOMELAB_DEPLOY_WEBHOOK_TOKEN: ${{ secrets.HOMELAB_DEPLOY_WEBHOOK_TOKEN }}
         run: |
           curl --fail --request POST \
-            --header "Authorization: Bearer ${{ secrets.HOMELAB_DEPLOY_WEBHOOK_TOKEN }}" \
-            "${{ secrets.HOMELAB_DEPLOY_WEBHOOK_URL }}"
+            --header "Authorization: Bearer ${HOMELAB_DEPLOY_WEBHOOK_TOKEN}" \
+            "${HOMELAB_DEPLOY_WEBHOOK_URL}"
