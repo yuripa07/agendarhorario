@@ -12,3 +12,4 @@
 | [EPIC-101](./EPIC-101-tenant-resolution/) | Tenant resolution | ✅ Done |
 | [EPIC-102](./EPIC-102-auth-admin/) | Auth admin | ✅ Done |
 | [EPIC-103](./EPIC-103-service-catalog/) | Service catalog | ✅ Done |
+| [EPIC-104](./EPIC-104-working-hours-blocks/) | Working hours & blocks | ✅ Done |

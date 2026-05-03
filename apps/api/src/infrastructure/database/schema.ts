@@ -80,7 +80,42 @@ export const services = pgTable("services", {
     .$onUpdate(() => sql`now()`),
 });
 
+export const workingHours = pgTable("working_hours", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id")
+    .notNull()
+    .references(() => tenants.id, { onDelete: "cascade" }),
+  weekday: integer("weekday").notNull(),
+  startMinutes: integer("start_minutes").notNull(),
+  endMinutes: integer("end_minutes").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
+});
+
+export const availabilityBlocks = pgTable("availability_blocks", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id")
+    .notNull()
+    .references(() => tenants.id, { onDelete: "cascade" }),
+  startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+  endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+  reason: varchar("reason", { length: 240 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
+});
+
 export type TenantRecord = typeof tenants.$inferSelect;
 export type NewTenantRecord = typeof tenants.$inferInsert;
 export type ServiceRecord = typeof services.$inferSelect;
 export type NewServiceRecord = typeof services.$inferInsert;
+export type WorkingHourRecord = typeof workingHours.$inferSelect;
+export type NewWorkingHourRecord = typeof workingHours.$inferInsert;
+export type AvailabilityBlockRecord = typeof availabilityBlocks.$inferSelect;
+export type NewAvailabilityBlockRecord = typeof availabilityBlocks.$inferInsert;
