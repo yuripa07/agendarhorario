@@ -16,7 +16,7 @@ COPY apps/api apps/api
 COPY packages/shared packages/shared
 RUN pnpm --filter @agendarhorario/shared build
 RUN pnpm --filter @agendarhorario/api build
-RUN pnpm deploy --filter @agendarhorario/api --prod /prod/api
+RUN pnpm deploy --filter @agendarhorario/api --prod --legacy /prod/api
 
 FROM node:24.14.1-alpine AS runtime
 ENV NODE_ENV=production
