@@ -11,3 +11,4 @@
 | [EPIC-007](./EPIC-007-documentation-foundation/) | Documentation foundation | ✅ Done |
 | [EPIC-101](./EPIC-101-tenant-resolution/) | Tenant resolution | ✅ Done |
 | [EPIC-102](./EPIC-102-auth-admin/) | Auth admin | ✅ Done |
+| [EPIC-103](./EPIC-103-service-catalog/) | Service catalog | 🟢 Active |
