@@ -17,6 +17,6 @@ COPY packages/shared packages/shared
 RUN pnpm --filter @agendarhorario/shared build
 RUN pnpm --filter @agendarhorario/web build
 
-FROM caddy:2.10.2-alpine AS runtime
+FROM caddy:2.11.2-alpine AS runtime
 COPY --from=build /app/apps/web/dist /usr/share/caddy
 EXPOSE 80
