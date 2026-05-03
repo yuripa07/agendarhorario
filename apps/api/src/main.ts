@@ -7,7 +7,7 @@ import { AppModule } from "./presentation/app.module.js";
 import { ZodValidationPipe } from "./presentation/pipes/zod-validation.pipe.js";
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, { bodyParser: false, bufferLogs: true });
   const config = app.get(ConfigService);
 
   app.useLogger(app.get(PinoLogger));
