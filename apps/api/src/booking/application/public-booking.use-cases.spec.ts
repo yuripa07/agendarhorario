@@ -1,6 +1,6 @@
 import type { CreatePublicBookingInput } from "@agendarhorario/shared";
 import { describe, expect, it } from "vitest";
-import type { BookingManagementLinkSender } from "./booking-management-link.sender.js";
+import type { BookingNotificationSender } from "./booking-notification.sender.js";
 import type { PublicBookingRepository } from "./public-booking.repository.js";
 import {
   PublicBookingAppointmentCanceledError,
@@ -92,7 +92,7 @@ describe("PublicBookingUseCases", () => {
 
   it("creates a confirmed booking only when the requested slot is still available", async () => {
     const repository = new FakePublicBookingRepository();
-    const sender = new CapturingManagementLinkSender();
+    const sender = new CapturingBookingNotificationSender();
     repository.services = [service({ durationMinutes: 60 })];
     repository.workingHours = [
       { weekday: 1, startMinutes: 9 * 60, endMinutes: 12 * 60, isActive: true },
@@ -109,8 +109,11 @@ describe("PublicBookingUseCases", () => {
     expect(created.status).toBe("confirmed");
     expect(created).not.toHaveProperty("managementToken");
     expect(repository.createdAppointments[0]?.managementTokenHash).not.toBe("raw-management-token");
-    expect(sender.messages[0]).toMatchObject({
+    expect(sender.created[0]).toMatchObject({
       customerEmail: input.customerEmail,
+      serviceName: "Corte",
+      startsAt: input.startsAt,
+      timezone: tenant.timezone,
       token: "raw-management-token",
     });
 
@@ -139,6 +142,8 @@ describe("PublicBookingUseCases", () => {
 
   it("looks up and cancels by a non-expired management token", async () => {
     const repository = new FakePublicBookingRepository();
+    const sender = new CapturingBookingNotificationSender();
+    repository.services = [service({ id: "service-1" })];
     repository.managementAppointment = {
       id: "appointment-1",
       tenantId: tenant.tenantId,
@@ -153,7 +158,7 @@ describe("PublicBookingUseCases", () => {
       canceledAt: null,
     };
 
-    const useCases = createUseCases(repository);
+    const useCases = createUseCases(repository, sender);
 
     await expect(useCases.lookupByToken("lookup-token")).resolves.toMatchObject({
       customerEmail: "maria@example.com",
@@ -162,6 +167,12 @@ describe("PublicBookingUseCases", () => {
 
     await expect(useCases.cancelByToken("lookup-token")).resolves.toMatchObject({
       status: "canceled",
+    });
+    expect(sender.canceled[0]).toMatchObject({
+      customerEmail: "maria@example.com",
+      serviceName: "Corte",
+      startsAt: new Date("2026-05-04T12:00:00.000Z"),
+      timezone: tenant.timezone,
     });
   });
 
@@ -178,6 +189,7 @@ describe("PublicBookingUseCases", () => {
 
   it("reschedules a confirmed appointment to a valid slot by management token", async () => {
     const repository = new FakePublicBookingRepository();
+    const sender = new CapturingBookingNotificationSender();
     repository.services = [service({ id: "service-1", durationMinutes: 60 })];
     repository.workingHours = [
       { weekday: 1, startMinutes: 9 * 60, endMinutes: 12 * 60, isActive: true },
@@ -189,7 +201,7 @@ describe("PublicBookingUseCases", () => {
     });
 
     await expect(
-      createUseCases(repository).rescheduleByToken({
+      createUseCases(repository, sender).rescheduleByToken({
         token: "lookup-token",
         startsAt: new Date("2026-05-04T14:00:00.000Z"),
       }),
@@ -197,6 +209,12 @@ describe("PublicBookingUseCases", () => {
       status: "confirmed",
       startsAt: new Date("2026-05-04T14:00:00.000Z"),
       endsAt: new Date("2026-05-04T15:00:00.000Z"),
+    });
+    expect(sender.rescheduled[0]).toMatchObject({
+      customerEmail: "maria@example.com",
+      serviceName: "Corte",
+      startsAt: new Date("2026-05-04T14:00:00.000Z"),
+      timezone: tenant.timezone,
     });
   });
 
@@ -275,11 +293,37 @@ describe("PublicBookingUseCases", () => {
       }),
     ).rejects.toBeInstanceOf(PublicBookingConflictError);
   });
+
+  it("does not fail persisted booking operations when notification sending fails", async () => {
+    const repository = new FakePublicBookingRepository();
+    repository.services = [service({ id: "service-1", durationMinutes: 60 })];
+    repository.workingHours = [
+      { weekday: 1, startMinutes: 9 * 60, endMinutes: 12 * 60, isActive: true },
+    ];
+    repository.managementAppointment = appointment({ serviceId: "service-1" });
+
+    const useCases = createUseCases(repository, new FailingBookingNotificationSender());
+
+    await expect(useCases.cancelByToken("lookup-token")).resolves.toMatchObject({
+      status: "canceled",
+    });
+
+    repository.managementAppointment = appointment({ serviceId: "service-1" });
+
+    await expect(
+      useCases.rescheduleByToken({
+        token: "lookup-token",
+        startsAt: new Date("2026-05-04T14:00:00.000Z"),
+      }),
+    ).resolves.toMatchObject({
+      startsAt: new Date("2026-05-04T14:00:00.000Z"),
+    });
+  });
 });
 
 function createUseCases(
   repository: FakePublicBookingRepository,
-  sender: BookingManagementLinkSender = new CapturingManagementLinkSender(),
+  sender: BookingNotificationSender = new CapturingBookingNotificationSender(),
 ): PublicBookingUseCases {
   return new PublicBookingUseCases(
     repository,
@@ -337,23 +381,45 @@ function appointment(overrides: Partial<FakeAppointment> = {}): FakeAppointment 
   };
 }
 
-class CapturingManagementLinkSender implements BookingManagementLinkSender {
-  readonly messages: Array<{
-    customerEmail: string;
-    customerName: string;
-    appointmentId: string;
-    token: string;
-  }> = [];
+class CapturingBookingNotificationSender implements BookingNotificationSender {
+  readonly created: Parameters<BookingNotificationSender["bookingCreated"]>[0][] = [];
+  readonly canceled: Parameters<BookingNotificationSender["bookingCanceled"]>[0][] = [];
+  readonly rescheduled: Parameters<BookingNotificationSender["bookingRescheduled"]>[0][] = [];
 
-  send(input: {
-    customerEmail: string;
-    customerName: string;
-    appointmentId: string;
-    token: string;
-  }): Promise<void> {
-    this.messages.push(input);
+  bookingCreated(input: Parameters<BookingNotificationSender["bookingCreated"]>[0]): Promise<void> {
+    this.created.push(input);
 
     return Promise.resolve();
+  }
+
+  bookingCanceled(
+    input: Parameters<BookingNotificationSender["bookingCanceled"]>[0],
+  ): Promise<void> {
+    this.canceled.push(input);
+
+    return Promise.resolve();
+  }
+
+  bookingRescheduled(
+    input: Parameters<BookingNotificationSender["bookingRescheduled"]>[0],
+  ): Promise<void> {
+    this.rescheduled.push(input);
+
+    return Promise.resolve();
+  }
+}
+
+class FailingBookingNotificationSender implements BookingNotificationSender {
+  bookingCreated(): Promise<void> {
+    return Promise.reject(new Error("email unavailable"));
+  }
+
+  bookingCanceled(): Promise<void> {
+    return Promise.reject(new Error("email unavailable"));
+  }
+
+  bookingRescheduled(): Promise<void> {
+    return Promise.reject(new Error("email unavailable"));
   }
 }
 

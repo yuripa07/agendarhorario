@@ -2,8 +2,10 @@ import { Test, type TestingModule } from "@nestjs/testing";
 import { eq } from "drizzle-orm";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { BookingManagementLinkSender } from "../src/booking/application/booking-management-link.sender.js";
-import { BOOKING_MANAGEMENT_LINK_SENDER } from "../src/booking/application/booking-management-link.sender.js";
+import {
+  BOOKING_NOTIFICATION_SENDER,
+  type BookingNotificationSender,
+} from "../src/booking/application/booking-notification.sender.js";
 import { DATABASE, type Database } from "../src/infrastructure/database/database.module.js";
 import { services, tenants, workingHours } from "../src/infrastructure/database/schema.js";
 import { AppModule } from "../src/presentation/app.module.js";
@@ -17,15 +19,15 @@ describe("Public booking API", () => {
   let moduleRef: TestingModule;
   let database: Database;
   let server: Parameters<typeof request>[0];
-  let sender: CapturingManagementLinkSender;
+  let sender: CapturingBookingNotificationSender;
   let serviceId: string;
 
   beforeAll(async () => {
-    sender = new CapturingManagementLinkSender();
+    sender = new CapturingBookingNotificationSender();
     moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideProvider(BOOKING_MANAGEMENT_LINK_SENDER)
+      .overrideProvider(BOOKING_NOTIFICATION_SENDER)
       .useValue(sender)
       .compile();
 
@@ -143,8 +145,14 @@ describe("Public booking API", () => {
     });
     expect(created.body.managementToken).toBeUndefined();
 
-    const token = sender.messages[0]?.token;
+    const token = sender.created[0]?.token;
     expect(token).toBeTruthy();
+    expect(sender.created[0]).toMatchObject({
+      customerEmail: "maria@example.com",
+      serviceName: "Corte masculino",
+      startsAt: new Date("2026-05-04T12:00:00.000Z"),
+      timezone: "America/Sao_Paulo",
+    });
 
     await request(server)
       .post("/public/bookings")
@@ -170,6 +178,11 @@ describe("Public booking API", () => {
     });
 
     await request(server).post("/public/bookings/management/cancel").send({ token }).expect(200);
+    expect(sender.canceled.at(-1)).toMatchObject({
+      customerEmail: "maria@example.com",
+      serviceName: "Corte masculino",
+      startsAt: new Date("2026-05-04T12:00:00.000Z"),
+    });
 
     await request(server)
       .post("/public/bookings")
@@ -199,7 +212,7 @@ describe("Public booking API", () => {
       })
       .expect(201);
 
-    const token = sender.messages.at(-1)?.token;
+    const token = sender.created.at(-1)?.token;
     expect(token).toBeTruthy();
 
     const rescheduled = await request(server)
@@ -212,6 +225,11 @@ describe("Public booking API", () => {
       status: "confirmed",
       startsAt: "2026-05-04T14:00:00.000Z",
       endsAt: "2026-05-04T15:00:00.000Z",
+    });
+    expect(sender.rescheduled.at(-1)).toMatchObject({
+      customerEmail: "joao@example.com",
+      serviceName: "Corte masculino",
+      startsAt: new Date("2026-05-04T14:00:00.000Z"),
     });
 
     await request(server)
@@ -258,21 +276,29 @@ function requireRecord<T>(record: T | undefined): T {
   return record;
 }
 
-class CapturingManagementLinkSender implements BookingManagementLinkSender {
-  readonly messages: Array<{
-    customerEmail: string;
-    customerName: string;
-    appointmentId: string;
-    token: string;
-  }> = [];
+class CapturingBookingNotificationSender implements BookingNotificationSender {
+  readonly created: Parameters<BookingNotificationSender["bookingCreated"]>[0][] = [];
+  readonly canceled: Parameters<BookingNotificationSender["bookingCanceled"]>[0][] = [];
+  readonly rescheduled: Parameters<BookingNotificationSender["bookingRescheduled"]>[0][] = [];
 
-  send(input: {
-    customerEmail: string;
-    customerName: string;
-    appointmentId: string;
-    token: string;
-  }): Promise<void> {
-    this.messages.push(input);
+  bookingCreated(input: Parameters<BookingNotificationSender["bookingCreated"]>[0]): Promise<void> {
+    this.created.push(input);
+
+    return Promise.resolve();
+  }
+
+  bookingCanceled(
+    input: Parameters<BookingNotificationSender["bookingCanceled"]>[0],
+  ): Promise<void> {
+    this.canceled.push(input);
+
+    return Promise.resolve();
+  }
+
+  bookingRescheduled(
+    input: Parameters<BookingNotificationSender["bookingRescheduled"]>[0],
+  ): Promise<void> {
+    this.rescheduled.push(input);
 
     return Promise.resolve();
   }
