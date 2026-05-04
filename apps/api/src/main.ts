@@ -10,7 +10,6 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bodyParser: false, bufferLogs: true });
   const config = app.get(ConfigService);
 
-  // biome-ignore lint/correctness/useHookAtTopLevel: Nest application method, not a React hook.
   app.useLogger(app.get(PinoLogger));
   app.use(
     helmet({
@@ -30,7 +29,6 @@ async function bootstrap(): Promise<void> {
     origin: config.getOrThrow<string>("WEB_ORIGIN"),
     credentials: true,
   });
-  // biome-ignore lint/correctness/useHookAtTopLevel: Nest application method, not a React hook.
   app.useGlobalPipes(new ZodValidationPipe());
 
   const port = config.getOrThrow<number>("PORT");
