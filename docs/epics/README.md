@@ -14,3 +14,5 @@
 | [EPIC-103](./EPIC-103-service-catalog/) | Service catalog | ✅ Done |
 | [EPIC-104](./EPIC-104-working-hours-blocks/) | Working hours & blocks | ✅ Done |
 | [EPIC-105](./EPIC-105-smart-slot-algorithm/) | Smart slot algorithm | ✅ Done |
+| [EPIC-106](./EPIC-106-customer-booking-flow/) | Customer booking flow API | ✅ Done |
+| [EPIC-107](./EPIC-107-provider-calendar-view/) | Provider calendar view | ✅ Done |
