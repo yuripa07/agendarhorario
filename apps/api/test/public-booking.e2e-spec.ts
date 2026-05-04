@@ -47,21 +47,21 @@ describe("Public booking API", () => {
       .insert(services)
       .values([
         {
-          tenantId: tenant.id,
+          tenantId: requireRecord(tenant).id,
           name: "Corte masculino",
           durationMinutes: 60,
           priceCents: 5000,
           isActive: true,
         },
         {
-          tenantId: tenant.id,
+          tenantId: requireRecord(tenant).id,
           name: "Servico inativo",
           durationMinutes: 30,
           priceCents: 3000,
           isActive: false,
         },
         {
-          tenantId: otherTenant.id,
+          tenantId: requireRecord(otherTenant).id,
           name: "Outro tenant",
           durationMinutes: 60,
           priceCents: 5000,
@@ -70,10 +70,10 @@ describe("Public booking API", () => {
       ])
       .returning();
 
-    serviceId = activeService.id;
+    serviceId = requireRecord(activeService).id;
 
     await database.insert(workingHours).values({
-      tenantId: tenant.id,
+      tenantId: requireRecord(tenant).id,
       weekday: 1,
       startMinutes: 9 * 60,
       endMinutes: 12 * 60,
@@ -185,6 +185,14 @@ describe("Public booking API", () => {
       .expect(201);
   });
 });
+
+function requireRecord<T>(record: T | undefined): T {
+  if (!record) {
+    throw new Error("Expected database record");
+  }
+
+  return record;
+}
 
 class CapturingManagementLinkSender implements BookingManagementLinkSender {
   readonly messages: Array<{

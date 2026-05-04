@@ -1,6 +1,6 @@
 # EPIC-106: Customer booking flow API
 
-**Status:** 🚧 In progress
+**Status:** ✅ Done
 
 ## Objetivo
 
@@ -27,4 +27,4 @@ Permitir que clientes finais consultem serviços ativos, vejam slots disponívei
 
 | ID | Título | Status |
 |----|--------|--------|
-| [US-001](./US-001-public-booking-api/) | Agendar e cancelar pelo fluxo público | 🚧 In progress |
+| [US-001](./US-001-public-booking-api/) | Agendar e cancelar pelo fluxo público | ✅ Done |

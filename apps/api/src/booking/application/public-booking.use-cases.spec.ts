@@ -49,7 +49,8 @@ describe("PublicBookingUseCases", () => {
       },
     ];
 
-    const slots = await createUseCases(repository).listSlots(tenant, repository.services[0].id, {
+    const activeService = requireValue(repository.services[0]);
+    const slots = await createUseCases(repository).listSlots(tenant, activeService.id, {
       startsAt: new Date("2026-05-04T12:00:00.000Z"),
       endsAt: new Date("2026-05-04T16:00:00.000Z"),
     });
@@ -61,6 +62,12 @@ describe("PublicBookingUseCases", () => {
         score: 0,
         isAdjacent: true,
       },
+      {
+        startsAt: new Date("2026-05-04T12:00:00.000Z"),
+        endsAt: new Date("2026-05-04T13:00:00.000Z"),
+        score: 1_000_000_000,
+        isAdjacent: false,
+      },
     ]);
   });
 
@@ -70,7 +77,7 @@ describe("PublicBookingUseCases", () => {
     const useCases = createUseCases(repository);
 
     await expect(
-      useCases.listSlots(tenant, repository.services[0].id, {
+      useCases.listSlots(tenant, requireValue(repository.services[0]).id, {
         startsAt: new Date("2026-05-04T12:00:00.000Z"),
         endsAt: new Date("2026-05-04T16:00:00.000Z"),
       }),
@@ -91,7 +98,7 @@ describe("PublicBookingUseCases", () => {
 
     const useCases = createUseCases(repository, sender);
     const input = bookingInput({
-      serviceId: repository.services[0].id,
+      serviceId: requireValue(repository.services[0]).id,
       startsAt: new Date("2026-05-04T12:00:00.000Z"),
     });
 
@@ -121,7 +128,7 @@ describe("PublicBookingUseCases", () => {
       createUseCases(repository).createBooking(
         tenant,
         bookingInput({
-          serviceId: repository.services[0].id,
+          serviceId: requireValue(repository.services[0]).id,
           startsAt: new Date("2026-05-04T12:30:00.000Z"),
         }),
       ),
@@ -242,7 +249,9 @@ class FakePublicBookingRepository implements PublicBookingRepository {
   services: FakeService[] = [];
   workingHours: Awaited<ReturnType<PublicBookingRepository["listWorkingHours"]>> = [];
   blocks: Awaited<ReturnType<PublicBookingRepository["listBlocks"]>> = [];
-  appointments: Awaited<ReturnType<PublicBookingRepository["listActiveAppointments"]>> = [];
+  appointments: Array<
+    Awaited<ReturnType<PublicBookingRepository["listActiveAppointments"]>>[number]
+  > = [];
   createdAppointments: Array<Parameters<PublicBookingRepository["createConfirmed"]>[0]> = [];
   managementAppointment: Awaited<ReturnType<PublicBookingRepository["findByManagementTokenHash"]>>;
   lastTenantId: string | undefined;
@@ -327,4 +336,12 @@ class FakePublicBookingRepository implements PublicBookingRepository {
 
     return Promise.resolve(this.managementAppointment);
   }
+}
+
+function requireValue<T>(value: T | undefined): T {
+  if (value === undefined) {
+    throw new Error("Expected test fixture value");
+  }
+
+  return value;
 }

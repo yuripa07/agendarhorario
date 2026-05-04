@@ -1,6 +1,6 @@
 # TASK-002: Persistir appointments e proteger sobreposição
 
-**Status:** 🚧 In progress
+**Status:** ✅ Done
 **Tipo:** feature
 **Atribuído a:** Codex
 
@@ -10,13 +10,13 @@ Persistir appointments confirmados com token de gerenciamento hasheado e impedir
 
 ## Passos de execução
 
-1. [ ] Criar tabela `appointments`.
-2. [ ] Adicionar exclusion constraint por `tenant_id` e `tstzrange(starts_at, ends_at)`.
-3. [ ] Persistir token de gerenciamento apenas como hash.
-4. [ ] Permitir reuso de slot após cancelamento.
+1. [x] Criar tabela `appointments`.
+2. [x] Adicionar exclusion constraint por `tenant_id` e `tstzrange(starts_at, ends_at)`.
+3. [x] Persistir token de gerenciamento apenas como hash.
+4. [x] Permitir reuso de slot após cancelamento.
 
 ## Definition of Done
 
-- [ ] Migration Drizzle criada.
-- [ ] Schema Drizzle atualizado.
-- [ ] Teste de integração cobre persistência, token e constraint.
+- [x] Migration Drizzle criada.
+- [x] Schema Drizzle atualizado.
+- [x] Teste de integração cobre persistência, token e constraint.

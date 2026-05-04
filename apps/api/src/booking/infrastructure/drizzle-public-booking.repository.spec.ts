@@ -8,6 +8,10 @@ import { DrizzlePublicBookingRepository } from "./drizzle-public-booking.reposit
 
 describe("DrizzlePublicBookingRepository", () => {
   const tenantSlug = `booking-repo-${Date.now()}`;
+  const hashedToken = `${tenantSlug}-hashed-token`;
+  const validTokenHash = `${tenantSlug}-valid-token-hash`;
+  const firstTokenHash = `${tenantSlug}-first-token-hash`;
+  const secondTokenHash = `${tenantSlug}-second-token-hash`;
   let moduleRef: TestingModule;
   let database: Database;
   let repository: DrizzlePublicBookingRepository;
@@ -27,7 +31,7 @@ describe("DrizzlePublicBookingRepository", () => {
       .values({ slug: tenantSlug, displayName: "Booking Repository Tenant" })
       .returning();
 
-    tenantId = tenant.id;
+    tenantId = requireRecord(tenant).id;
 
     const [service] = await database
       .insert(services)
@@ -39,7 +43,7 @@ describe("DrizzlePublicBookingRepository", () => {
       })
       .returning();
 
-    serviceId = service.id;
+    serviceId = requireRecord(service).id;
   });
 
   beforeEach(async () => {
@@ -55,7 +59,7 @@ describe("DrizzlePublicBookingRepository", () => {
       customerPhone: "+5511999999999",
       startsAt: new Date("2026-05-04T12:00:00.000Z"),
       endsAt: new Date("2026-05-04T13:00:00.000Z"),
-      managementTokenHash: "hashed-token",
+      managementTokenHash: hashedToken,
       managementTokenExpiresAt: new Date("2026-05-10T12:00:00.000Z"),
     });
 
@@ -65,7 +69,7 @@ describe("DrizzlePublicBookingRepository", () => {
       where: eq(appointments.id, created.id),
     });
 
-    expect(stored?.managementTokenHash).toBe("hashed-token");
+    expect(stored?.managementTokenHash).toBe(hashedToken);
     expect(JSON.stringify(stored)).not.toContain("raw-token");
   });
 
@@ -78,21 +82,19 @@ describe("DrizzlePublicBookingRepository", () => {
       customerPhone: "+5511999999999",
       startsAt: new Date("2026-05-04T12:00:00.000Z"),
       endsAt: new Date("2026-05-04T13:00:00.000Z"),
-      managementTokenHash: "valid-token-hash",
+      managementTokenHash: validTokenHash,
       managementTokenExpiresAt: new Date("2026-05-10T12:00:00.000Z"),
     });
 
-    await expect(repository.findByManagementTokenHash("valid-token-hash")).resolves.toMatchObject({
+    await expect(repository.findByManagementTokenHash(validTokenHash)).resolves.toMatchObject({
       id: created.id,
       status: "confirmed",
     });
 
-    await expect(repository.cancelByManagementTokenHash("valid-token-hash")).resolves.toMatchObject(
-      {
-        id: created.id,
-        status: "canceled",
-      },
-    );
+    await expect(repository.cancelByManagementTokenHash(validTokenHash)).resolves.toMatchObject({
+      id: created.id,
+      status: "canceled",
+    });
 
     await expect(
       repository.findByManagementTokenHash("missing-token-hash"),
@@ -108,7 +110,7 @@ describe("DrizzlePublicBookingRepository", () => {
       customerPhone: "+5511999999999",
       startsAt: new Date("2026-05-04T12:00:00.000Z"),
       endsAt: new Date("2026-05-04T13:00:00.000Z"),
-      managementTokenHash: "first-token-hash",
+      managementTokenHash: firstTokenHash,
       managementTokenExpiresAt: new Date("2026-05-10T12:00:00.000Z"),
     });
 
@@ -121,12 +123,12 @@ describe("DrizzlePublicBookingRepository", () => {
         customerPhone: "+5511888888888",
         startsAt: new Date("2026-05-04T12:30:00.000Z"),
         endsAt: new Date("2026-05-04T13:30:00.000Z"),
-        managementTokenHash: "second-token-hash",
+        managementTokenHash: secondTokenHash,
         managementTokenExpiresAt: new Date("2026-05-10T12:00:00.000Z"),
       }),
     ).rejects.toThrow();
 
-    await repository.cancelByManagementTokenHash("first-token-hash");
+    await repository.cancelByManagementTokenHash(firstTokenHash);
 
     await expect(
       repository.createConfirmed({
@@ -137,9 +139,17 @@ describe("DrizzlePublicBookingRepository", () => {
         customerPhone: "+5511888888888",
         startsAt: new Date("2026-05-04T12:30:00.000Z"),
         endsAt: new Date("2026-05-04T13:30:00.000Z"),
-        managementTokenHash: "second-token-hash",
+        managementTokenHash: secondTokenHash,
         managementTokenExpiresAt: new Date("2026-05-10T12:00:00.000Z"),
       }),
     ).resolves.toMatchObject({ status: "confirmed" });
   });
 });
+
+function requireRecord<T>(record: T | undefined): T {
+  if (!record) {
+    throw new Error("Expected database record");
+  }
+
+  return record;
+}

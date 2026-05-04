@@ -1,6 +1,6 @@
 # US-001: Agendar e cancelar pelo fluxo público
 
-**Status:** 🚧 In progress
+**Status:** ✅ Done
 
 ## História
 
@@ -64,9 +64,9 @@ Como cliente final, quero escolher um serviço ativo, selecionar um horário dis
 
 | ID | Título | Status |
 |----|--------|--------|
-| [TASK-001](./TASK-001-public-booking-contracts.md) | Definir contratos públicos e schemas | 🚧 In progress |
-| [TASK-002](./TASK-002-appointment-persistence.md) | Persistir appointments e proteger sobreposição | 🚧 In progress |
-| [TASK-003](./TASK-003-booking-use-cases.md) | Implementar casos de uso de booking | 🚧 In progress |
-| [TASK-004](./TASK-004-public-booking-http-api.md) | Expor API HTTP pública | 🚧 In progress |
+| [TASK-001](./TASK-001-public-booking-contracts.md) | Definir contratos públicos e schemas | ✅ Done |
+| [TASK-002](./TASK-002-appointment-persistence.md) | Persistir appointments e proteger sobreposição | ✅ Done |
+| [TASK-003](./TASK-003-booking-use-cases.md) | Implementar casos de uso de booking | ✅ Done |
+| [TASK-004](./TASK-004-public-booking-http-api.md) | Expor API HTTP pública | ✅ Done |
 
 ## Ver [HISTORY.md](./HISTORY.md)
