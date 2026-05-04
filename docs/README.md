@@ -10,4 +10,4 @@ Este diretório concentra a documentação operacional e arquitetural do agendar
 
 ## Fase atual
 
-Fase 0: Foundation. O objetivo é manter o repositório pronto para desenvolvimento, CI, deploy homelab e evolução do MVP.
+MVP backend. O objetivo é consolidar os fluxos públicos e administrativos essenciais da API, mantendo documentação, testes, CI, deploy homelab e frontend preparados para evolução incremental.
