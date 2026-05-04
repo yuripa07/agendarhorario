@@ -1,10 +1,10 @@
 import { Test, type TestingModule } from "@nestjs/testing";
 import { eq } from "drizzle-orm";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { DATABASE, type Database } from "../../infrastructure/database/database.module.js";
-import { appointments, services, tenants } from "../../infrastructure/database/schema.js";
-import { AppModule } from "../../presentation/app.module.js";
-import { DrizzlePublicBookingRepository } from "./drizzle-public-booking.repository.js";
+import { DrizzlePublicBookingRepository } from "../src/booking/infrastructure/drizzle-public-booking.repository.js";
+import { DATABASE, type Database } from "../src/infrastructure/database/database.module.js";
+import { appointments, services, tenants } from "../src/infrastructure/database/schema.js";
+import { AppModule } from "../src/presentation/app.module.js";
 
 describe("DrizzlePublicBookingRepository", () => {
   const tenantSlug = `booking-repo-${Date.now()}`;
