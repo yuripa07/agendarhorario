@@ -51,6 +51,7 @@ export class TenantResolutionMiddleware implements NestMiddleware {
       {
         tenantId: tenant.id,
         tenantSlug: tenant.slug,
+        timezone: tenant.timezone,
         host: normalizeHost(request.headers.host) ?? "",
       },
       next,

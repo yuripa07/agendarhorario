@@ -9,6 +9,7 @@ describe("TenantContextService", () => {
       {
         tenantId: "00000000-0000-4000-8000-000000000001",
         tenantSlug: "cliente",
+        timezone: "America/Sao_Paulo",
         host: "cliente.agendarhorario.com.br",
       },
       async () => {

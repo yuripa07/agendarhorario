@@ -111,6 +111,32 @@ export const availabilityBlocks = pgTable("availability_blocks", {
     .$onUpdate(() => sql`now()`),
 });
 
+export const appointments = pgTable("appointments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id")
+    .notNull()
+    .references(() => tenants.id, { onDelete: "cascade" }),
+  serviceId: uuid("service_id")
+    .notNull()
+    .references(() => services.id, { onDelete: "cascade" }),
+  customerName: varchar("customer_name", { length: 120 }).notNull(),
+  customerEmail: varchar("customer_email", { length: 254 }).notNull(),
+  customerPhone: varchar("customer_phone", { length: 32 }).notNull(),
+  startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+  endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+  status: varchar("status", { length: 24 }).notNull().default("confirmed"),
+  managementTokenHash: text("management_token_hash").notNull().unique(),
+  managementTokenExpiresAt: timestamp("management_token_expires_at", {
+    withTimezone: true,
+  }).notNull(),
+  canceledAt: timestamp("canceled_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
+});
+
 export type TenantRecord = typeof tenants.$inferSelect;
 export type NewTenantRecord = typeof tenants.$inferInsert;
 export type ServiceRecord = typeof services.$inferSelect;
@@ -119,3 +145,5 @@ export type WorkingHourRecord = typeof workingHours.$inferSelect;
 export type NewWorkingHourRecord = typeof workingHours.$inferInsert;
 export type AvailabilityBlockRecord = typeof availabilityBlocks.$inferSelect;
 export type NewAvailabilityBlockRecord = typeof availabilityBlocks.$inferInsert;
+export type AppointmentRecord = typeof appointments.$inferSelect;
+export type NewAppointmentRecord = typeof appointments.$inferInsert;

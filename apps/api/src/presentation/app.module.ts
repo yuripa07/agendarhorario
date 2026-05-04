@@ -4,6 +4,7 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { LoggerModule } from "nestjs-pino";
 import { AuthModule } from "../auth/auth.module.js";
 import { AvailabilityModule } from "../availability/availability.module.js";
+import { BookingModule } from "../booking/booking.module.js";
 import { envSchema } from "../infrastructure/config/env.schema.js";
 import { DatabaseModule } from "../infrastructure/database/database.module.js";
 import { redact } from "../infrastructure/logger/redact.js";
@@ -41,6 +42,7 @@ import { HealthModule } from "./health/health.module.js";
     AuthModule,
     ServicesModule,
     AvailabilityModule,
+    BookingModule,
     HealthModule,
   ],
 })
