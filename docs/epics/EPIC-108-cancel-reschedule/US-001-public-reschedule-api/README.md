@@ -1,7 +1,7 @@
 # US-001: Remarcar agendamento por token
 
 **Épico pai:** [EPIC-108](../README.md)
-**Status:** 🟢 In progress
+**Status:** ✅ Done
 **Estimativa:** Não estimada
 **Criado em:** 2026-05-04
 
@@ -72,7 +72,7 @@
 
 | ID | Título | Status |
 |----|--------|--------|
-| [TASK-001](./TASK-001-public-reschedule-api.md) | Criar remarcação pública por token | 🟢 |
+| [TASK-001](./TASK-001-public-reschedule-api.md) | Criar remarcação pública por token | ✅ |
 
 ## 📚 Referências
 

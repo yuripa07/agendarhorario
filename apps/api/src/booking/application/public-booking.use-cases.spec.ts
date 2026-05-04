@@ -368,6 +368,10 @@ class FakePublicBookingRepository implements PublicBookingRepository {
   managementAppointment: Awaited<ReturnType<PublicBookingRepository["findByManagementTokenHash"]>>;
   lastTenantId: string | undefined;
 
+  findTenantTimezone() {
+    return Promise.resolve(tenant.timezone);
+  }
+
   listActiveServices(tenantId: string) {
     this.lastTenantId = tenantId;
 

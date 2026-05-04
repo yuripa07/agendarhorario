@@ -1,5 +1,5 @@
 import type { PublicAppointment, PublicService, WorkingHour } from "@agendarhorario/shared";
-import { and, asc, eq, gt, lt, min, sql } from "drizzle-orm";
+import { and, asc, eq, gt, lt, min, ne, sql } from "drizzle-orm";
 import type { Database } from "../../infrastructure/database/database.module.js";
 import {
   type AppointmentRecord,
@@ -7,6 +7,7 @@ import {
   availabilityBlocks,
   type ServiceRecord,
   services,
+  tenants,
   type WorkingHourRecord,
   workingHours,
 } from "../../infrastructure/database/schema.js";
@@ -18,6 +19,15 @@ import type {
 
 export class DrizzlePublicBookingRepository implements PublicBookingRepository {
   constructor(private readonly database: Database) {}
+
+  async findTenantTimezone(tenantId: string): Promise<string | undefined> {
+    const tenant = await this.database.query.tenants.findFirst({
+      columns: { timezone: true },
+      where: eq(tenants.id, tenantId),
+    });
+
+    return tenant?.timezone;
+  }
 
   async listActiveServices(tenantId: string): Promise<readonly PublicService[]> {
     const records = await this.database.query.services.findMany({
@@ -82,6 +92,7 @@ export class DrizzlePublicBookingRepository implements PublicBookingRepository {
     tenantId: string,
     startsAt: Date,
     endsAt: Date,
+    excludeAppointmentId?: string,
   ): Promise<readonly SmartSlotInterval[]> {
     const records = await this.database.query.appointments.findMany({
       where: and(
@@ -89,6 +100,7 @@ export class DrizzlePublicBookingRepository implements PublicBookingRepository {
         eq(appointments.status, "confirmed"),
         lt(appointments.startsAt, endsAt),
         gt(appointments.endsAt, startsAt),
+        excludeAppointmentId ? ne(appointments.id, excludeAppointmentId) : undefined,
       ),
       orderBy: [asc(appointments.startsAt)],
     });
@@ -133,6 +145,26 @@ export class DrizzlePublicBookingRepository implements PublicBookingRepository {
       .set({
         status: "canceled",
         canceledAt: sql`now()`,
+        updatedAt: sql`now()`,
+      })
+      .where(
+        and(eq(appointments.managementTokenHash, tokenHash), eq(appointments.status, "confirmed")),
+      )
+      .returning();
+
+    return appointment ? mapAppointmentRecord(appointment) : undefined;
+  }
+
+  async rescheduleByManagementTokenHash(
+    tokenHash: string,
+    startsAt: Date,
+    endsAt: Date,
+  ): Promise<PublicAppointment | undefined> {
+    const [appointment] = await this.database
+      .update(appointments)
+      .set({
+        startsAt,
+        endsAt,
         updatedAt: sql`now()`,
       })
       .where(

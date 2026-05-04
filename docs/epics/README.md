@@ -16,4 +16,4 @@
 | [EPIC-105](./EPIC-105-smart-slot-algorithm/) | Smart slot algorithm | ✅ Done |
 | [EPIC-106](./EPIC-106-customer-booking-flow/) | Customer booking flow API | ✅ Done |
 | [EPIC-107](./EPIC-107-provider-calendar-view/) | Provider calendar view | ✅ Done |
-| [EPIC-108](./EPIC-108-cancel-reschedule/) | Cancel and reschedule | 🟢 Active |
+| [EPIC-108](./EPIC-108-cancel-reschedule/) | Cancel and reschedule | ✅ Done |

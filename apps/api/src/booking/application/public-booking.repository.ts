@@ -16,6 +16,7 @@ export type CreateConfirmedAppointmentInput = {
 };
 
 export interface PublicBookingRepository {
+  findTenantTimezone(tenantId: string): Promise<string | undefined>;
   listActiveServices(tenantId: string): Promise<readonly PublicService[]>;
   findActiveService(tenantId: string, serviceId: string): Promise<PublicService | undefined>;
   findShortestActiveServiceDurationMinutes(tenantId: string): Promise<number | undefined>;
@@ -25,8 +26,14 @@ export interface PublicBookingRepository {
     tenantId: string,
     startsAt: Date,
     endsAt: Date,
+    excludeAppointmentId?: string,
   ): Promise<readonly SmartSlotInterval[]>;
   createConfirmed(input: CreateConfirmedAppointmentInput): Promise<PublicAppointment>;
   findByManagementTokenHash(tokenHash: string): Promise<PublicAppointment | undefined>;
   cancelByManagementTokenHash(tokenHash: string): Promise<PublicAppointment | undefined>;
+  rescheduleByManagementTokenHash(
+    tokenHash: string,
+    startsAt: Date,
+    endsAt: Date,
+  ): Promise<PublicAppointment | undefined>;
 }

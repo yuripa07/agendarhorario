@@ -1,6 +1,6 @@
 # EPIC-108: Cancel and reschedule
 
-**Status:** 🟢 Active
+**Status:** ✅ Done
 **Owner:** Yuri
 **Criado em:** 2026-05-04
 **Última atualização:** 2026-05-04
@@ -35,20 +35,20 @@ O EPIC-106 entregou criação, consulta e cancelamento de appointment por manage
 
 ## ✅ Critérios de pronto
 
-- [ ] `POST /public/bookings/management/reschedule` aceita `{ token, startsAt }`.
-- [ ] `startsAt` exige UTC instant terminado em `Z`.
-- [ ] Token inexistente ou expirado retorna 404.
-- [ ] Appointment cancelado não pode ser remarcado.
-- [ ] Slot inválido retorna 400.
-- [ ] Conflito com outro appointment confirmado retorna 409.
-- [ ] O mesmo management token continua válido após remarcação.
-- [ ] Testes automatizados passam localmente.
+- [x] `POST /public/bookings/management/reschedule` aceita `{ token, startsAt }`.
+- [x] `startsAt` exige UTC instant terminado em `Z`.
+- [x] Token inexistente ou expirado retorna 404.
+- [x] Appointment cancelado não pode ser remarcado.
+- [x] Slot inválido retorna 400.
+- [x] Conflito com outro appointment confirmado retorna 409.
+- [x] O mesmo management token continua válido após remarcação.
+- [x] Testes automatizados passam localmente.
 
 ## 🔗 User Stories
 
 | ID | Título | Status |
 |----|--------|--------|
-| [US-001](./US-001-public-reschedule-api/) | Remarcar agendamento por token | 🟢 |
+| [US-001](./US-001-public-reschedule-api/) | Remarcar agendamento por token | ✅ |
 
 ## 📚 ADRs relacionados
 
@@ -60,3 +60,4 @@ O EPIC-106 entregou criação, consulta e cancelamento de appointment por manage
 ## 📜 Histórico
 
 - 2026-05-04: criado escopo backend de remarcação por token. Cancelamento por token permanece como funcionalidade pré-existente do EPIC-106.
+- 2026-05-04: implementado backend de remarcação por token.

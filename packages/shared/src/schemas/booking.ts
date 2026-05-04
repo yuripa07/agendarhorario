@@ -41,6 +41,11 @@ export const managementTokenSchema = z.object({
   token: z.string().trim().min(1),
 });
 
+export const reschedulePublicBookingSchema = z.object({
+  token: z.string().trim().min(1),
+  startsAt: utcInstantSchema,
+});
+
 export const publicServiceSchema = serviceSchema;
 
 export const publicAppointmentSchema = z.object({
@@ -61,6 +66,7 @@ export type PublicSlotsQuery = z.infer<typeof publicSlotsQuerySchema>;
 export type PublicSlot = z.infer<typeof publicSlotSchema>;
 export type CreatePublicBookingInput = z.infer<typeof createPublicBookingSchema>;
 export type ManagementTokenInput = z.infer<typeof managementTokenSchema>;
+export type ReschedulePublicBookingInput = z.infer<typeof reschedulePublicBookingSchema>;
 export type PublicService = z.infer<typeof publicServiceSchema>;
 export type PublicAppointment = z.infer<typeof publicAppointmentSchema>;
 export type AppointmentStatus = z.infer<typeof appointmentStatusSchema>;
