@@ -12,3 +12,4 @@
 | [ADR-008](./ADR-008-ci-security.md) | CI e segurança automatizados | Accepted |
 | [ADR-009](./ADR-009-homelab-containerization.md) | Homelab com Docker Compose e Caddy | Accepted |
 | [ADR-010](./ADR-010-documentation-model.md) | Modelo de documentação por épico | Accepted |
+| [ADR-011](./ADR-011-smart-slot-algorithm.md) | Algoritmo puro de slots disponíveis | Accepted |
