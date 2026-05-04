@@ -3,11 +3,13 @@ import { describe, expect, it } from "vitest";
 import type { BookingManagementLinkSender } from "./booking-management-link.sender.js";
 import type { PublicBookingRepository } from "./public-booking.repository.js";
 import {
+  PublicBookingAppointmentCanceledError,
   PublicBookingConflictError,
   PublicBookingInvalidSlotError,
   PublicBookingServiceNotFoundError,
   PublicBookingTenantRequiredError,
   PublicBookingTokenExpiredError,
+  PublicBookingTokenNotFoundError,
   PublicBookingUseCases,
 } from "./public-booking.use-cases.js";
 
@@ -165,23 +167,113 @@ describe("PublicBookingUseCases", () => {
 
   it("rejects expired management tokens", async () => {
     const repository = new FakePublicBookingRepository();
-    repository.managementAppointment = {
-      id: "appointment-1",
-      tenantId: tenant.tenantId,
-      serviceId: "service-1",
-      customerName: "Maria Silva",
-      customerEmail: "maria@example.com",
-      customerPhone: "+5511999999999",
-      startsAt: new Date("2026-05-04T12:00:00.000Z"),
-      endsAt: new Date("2026-05-04T13:00:00.000Z"),
-      status: "confirmed",
+    repository.managementAppointment = appointment({
       managementTokenExpiresAt: new Date("2026-05-02T00:00:00.000Z"),
-      canceledAt: null,
-    };
+    });
 
     await expect(createUseCases(repository).lookupByToken("expired-token")).rejects.toBeInstanceOf(
       PublicBookingTokenExpiredError,
     );
+  });
+
+  it("reschedules a confirmed appointment to a valid slot by management token", async () => {
+    const repository = new FakePublicBookingRepository();
+    repository.services = [service({ id: "service-1", durationMinutes: 60 })];
+    repository.workingHours = [
+      { weekday: 1, startMinutes: 9 * 60, endMinutes: 12 * 60, isActive: true },
+    ];
+    repository.managementAppointment = appointment({
+      serviceId: "service-1",
+      startsAt: new Date("2026-05-04T12:00:00.000Z"),
+      endsAt: new Date("2026-05-04T13:00:00.000Z"),
+    });
+
+    await expect(
+      createUseCases(repository).rescheduleByToken({
+        token: "lookup-token",
+        startsAt: new Date("2026-05-04T14:00:00.000Z"),
+      }),
+    ).resolves.toMatchObject({
+      status: "confirmed",
+      startsAt: new Date("2026-05-04T14:00:00.000Z"),
+      endsAt: new Date("2026-05-04T15:00:00.000Z"),
+    });
+  });
+
+  it("rejects missing and expired management tokens during reschedule", async () => {
+    const repository = new FakePublicBookingRepository();
+    const useCases = createUseCases(repository);
+
+    await expect(
+      useCases.rescheduleByToken({
+        token: "missing-token",
+        startsAt: new Date("2026-05-04T14:00:00.000Z"),
+      }),
+    ).rejects.toBeInstanceOf(PublicBookingTokenNotFoundError);
+
+    repository.managementAppointment = appointment({
+      managementTokenExpiresAt: new Date("2026-05-02T00:00:00.000Z"),
+    });
+
+    await expect(
+      useCases.rescheduleByToken({
+        token: "expired-token",
+        startsAt: new Date("2026-05-04T14:00:00.000Z"),
+      }),
+    ).rejects.toBeInstanceOf(PublicBookingTokenExpiredError);
+  });
+
+  it("rejects canceled appointments during reschedule", async () => {
+    const repository = new FakePublicBookingRepository();
+    repository.managementAppointment = appointment({
+      status: "canceled",
+      canceledAt: new Date("2026-05-03T00:00:00.000Z"),
+    });
+
+    await expect(
+      createUseCases(repository).rescheduleByToken({
+        token: "lookup-token",
+        startsAt: new Date("2026-05-04T14:00:00.000Z"),
+      }),
+    ).rejects.toBeInstanceOf(PublicBookingAppointmentCanceledError);
+  });
+
+  it("rejects invalid reschedule slots", async () => {
+    const repository = new FakePublicBookingRepository();
+    repository.services = [service({ id: "service-1", durationMinutes: 60 })];
+    repository.workingHours = [
+      { weekday: 1, startMinutes: 9 * 60, endMinutes: 12 * 60, isActive: true },
+    ];
+    repository.managementAppointment = appointment({ serviceId: "service-1" });
+
+    await expect(
+      createUseCases(repository).rescheduleByToken({
+        token: "lookup-token",
+        startsAt: new Date("2026-05-04T12:30:00.000Z"),
+      }),
+    ).rejects.toBeInstanceOf(PublicBookingInvalidSlotError);
+  });
+
+  it("rejects reschedule conflicts", async () => {
+    const repository = new FakePublicBookingRepository();
+    repository.services = [service({ id: "service-1", durationMinutes: 60 })];
+    repository.workingHours = [
+      { weekday: 1, startMinutes: 9 * 60, endMinutes: 12 * 60, isActive: true },
+    ];
+    repository.managementAppointment = appointment({ serviceId: "service-1" });
+    repository.appointments = [
+      {
+        startsAt: new Date("2026-05-04T14:00:00.000Z"),
+        endsAt: new Date("2026-05-04T15:00:00.000Z"),
+      },
+    ];
+
+    await expect(
+      createUseCases(repository).rescheduleByToken({
+        token: "lookup-token",
+        startsAt: new Date("2026-05-04T14:00:00.000Z"),
+      }),
+    ).rejects.toBeInstanceOf(PublicBookingConflictError);
   });
 });
 
@@ -224,6 +316,26 @@ function bookingInput(overrides: Partial<CreatePublicBookingInput>): CreatePubli
 }
 
 type FakeService = Awaited<ReturnType<PublicBookingRepository["listActiveServices"]>>[number];
+type FakeAppointment = Awaited<
+  ReturnType<PublicBookingRepository["findByManagementTokenHash"]>
+> & {};
+
+function appointment(overrides: Partial<FakeAppointment> = {}): FakeAppointment {
+  return {
+    id: "appointment-1",
+    tenantId: tenant.tenantId,
+    serviceId: "service-1",
+    customerName: "Maria Silva",
+    customerEmail: "maria@example.com",
+    customerPhone: "+5511999999999",
+    startsAt: new Date("2026-05-04T12:00:00.000Z"),
+    endsAt: new Date("2026-05-04T13:00:00.000Z"),
+    status: "confirmed",
+    managementTokenExpiresAt: new Date("2026-05-10T00:00:00.000Z"),
+    canceledAt: null,
+    ...overrides,
+  };
+}
 
 class CapturingManagementLinkSender implements BookingManagementLinkSender {
   readonly messages: Array<{
@@ -255,6 +367,10 @@ class FakePublicBookingRepository implements PublicBookingRepository {
   createdAppointments: Array<Parameters<PublicBookingRepository["createConfirmed"]>[0]> = [];
   managementAppointment: Awaited<ReturnType<PublicBookingRepository["findByManagementTokenHash"]>>;
   lastTenantId: string | undefined;
+
+  findTenantTimezone() {
+    return Promise.resolve(tenant.timezone);
+  }
 
   listActiveServices(tenantId: string) {
     this.lastTenantId = tenantId;
@@ -332,6 +448,32 @@ class FakePublicBookingRepository implements PublicBookingRepository {
       ...this.managementAppointment,
       status: "canceled",
       canceledAt: new Date("2026-05-03T00:00:00.000Z"),
+    };
+
+    return Promise.resolve(this.managementAppointment);
+  }
+
+  rescheduleByManagementTokenHash(
+    _tokenHash: string,
+    startsAt: Date,
+    endsAt: Date,
+  ): Promise<FakeAppointment | undefined> {
+    if (!this.managementAppointment) {
+      return Promise.resolve(undefined);
+    }
+
+    const conflicts = this.appointments.some(
+      (appointment) => startsAt < appointment.endsAt && appointment.startsAt < endsAt,
+    );
+
+    if (conflicts) {
+      throw new PublicBookingConflictError();
+    }
+
+    this.managementAppointment = {
+      ...this.managementAppointment,
+      startsAt,
+      endsAt,
     };
 
     return Promise.resolve(this.managementAppointment);

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepare": "husky",
-    "dev": "pnpm run docker:dev:up && pnpm --parallel --filter @agendarhorario/api --filter @agendarhorario/web dev",
+    "dev": "pnpm --filter @agendarhorario/shared build && pnpm run docker:dev:up && pnpm --parallel --filter @agendarhorario/api --filter @agendarhorario/web dev",
     "build": "pnpm --recursive --if-present build",
     "lint": "biome check .",
     "format": "biome check --write .",
@@ -36,7 +36,7 @@
     "vitest": "4.1.5"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,jsonc,md,css}": [
+    "*.{ts,tsx,js,jsx,json,jsonc,css}": [
       "biome check --write"
     ]
   },

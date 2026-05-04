@@ -5,6 +5,7 @@ import type {
   PublicService,
   PublicSlot,
   PublicSlotsQuery,
+  ReschedulePublicBookingInput,
 } from "@agendarhorario/shared";
 import { addDays } from "date-fns";
 import { calculateAvailableSlots } from "../../scheduling/domain/index.js";
@@ -114,17 +115,90 @@ export class PublicBookingUseCases {
     return canceled ?? existing;
   }
 
+  async rescheduleByToken(input: ReschedulePublicBookingInput): Promise<PublicAppointment> {
+    const tokenHash = hashManagementToken(input.token);
+    const existing = this.requireConfirmedManagementAppointment(
+      await this.repository.findByManagementTokenHash(tokenHash),
+    );
+    const service = await this.repository.findActiveService(existing.tenantId, existing.serviceId);
+
+    if (!service) {
+      throw new PublicBookingServiceNotFoundError();
+    }
+
+    const timezone = await this.repository.findTenantTimezone(existing.tenantId);
+
+    if (!timezone) {
+      throw new PublicBookingTenantRequiredError();
+    }
+
+    const endsAt = new Date(input.startsAt.getTime() + service.durationMinutes * 60_000);
+    const conflictingAppointments = await this.repository.listActiveAppointments(
+      existing.tenantId,
+      input.startsAt,
+      endsAt,
+      existing.id,
+    );
+
+    if (conflictingAppointments.length > 0) {
+      throw new PublicBookingConflictError();
+    }
+
+    const slots = await this.calculateSlots(
+      { tenantId: existing.tenantId, timezone },
+      service,
+      input.startsAt,
+      endsAt,
+      existing.id,
+    );
+    const requestedSlot = slots.find(
+      (slot) =>
+        slot.startsAt.getTime() === input.startsAt.getTime() &&
+        slot.endsAt.getTime() === endsAt.getTime(),
+    );
+
+    if (!requestedSlot) {
+      throw new PublicBookingInvalidSlotError();
+    }
+
+    try {
+      const rescheduled = await this.repository.rescheduleByManagementTokenHash(
+        tokenHash,
+        requestedSlot.startsAt,
+        requestedSlot.endsAt,
+      );
+
+      if (!rescheduled) {
+        throw new PublicBookingAppointmentCanceledError();
+      }
+
+      return rescheduled;
+    } catch (error) {
+      if (isAppointmentConflictError(error)) {
+        throw new PublicBookingConflictError();
+      }
+
+      throw error;
+    }
+  }
+
   private async calculateSlots(
     tenant: PublicBookingTenant,
     service: PublicService,
     startsAt: Date,
     endsAt: Date,
+    excludeAppointmentId?: string,
   ): Promise<readonly PublicSlot[]> {
     const [shortestDuration, workingHours, blocks, appointments] = await Promise.all([
       this.repository.findShortestActiveServiceDurationMinutes(tenant.tenantId),
       this.repository.listWorkingHours(tenant.tenantId),
       this.repository.listBlocks(tenant.tenantId, startsAt, endsAt),
-      this.repository.listActiveAppointments(tenant.tenantId, startsAt, endsAt),
+      this.repository.listActiveAppointments(
+        tenant.tenantId,
+        startsAt,
+        endsAt,
+        excludeAppointmentId,
+      ),
     ]);
 
     return calculateAvailableSlots({
@@ -172,6 +246,18 @@ export class PublicBookingUseCases {
 
     return appointment;
   }
+
+  private requireConfirmedManagementAppointment(
+    appointment: PublicAppointment | undefined,
+  ): PublicAppointment {
+    const valid = this.requireValidManagementAppointment(appointment);
+
+    if (valid.status === "canceled") {
+      throw new PublicBookingAppointmentCanceledError();
+    }
+
+    return valid;
+  }
 }
 
 export function hashManagementToken(token: string): string {
@@ -213,6 +299,13 @@ export class PublicBookingConflictError extends Error {
   constructor() {
     super("Appointment slot is no longer available");
     this.name = "PublicBookingConflictError";
+  }
+}
+
+export class PublicBookingAppointmentCanceledError extends Error {
+  constructor() {
+    super("Appointment is canceled");
+    this.name = "PublicBookingAppointmentCanceledError";
   }
 }
 

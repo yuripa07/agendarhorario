@@ -8,6 +8,8 @@ import {
   type PublicSlot,
   type PublicSlotsQuery,
   publicSlotsQuerySchema,
+  type ReschedulePublicBookingInput,
+  reschedulePublicBookingSchema,
   serviceIdSchema,
 } from "@agendarhorario/shared";
 import {
@@ -28,6 +30,7 @@ import { ZodValidationPipe } from "../../presentation/pipes/zod-validation.pipe.
 import { TenantContextService } from "../../tenancy/application/tenant-context.service.js";
 import type { TenantContext } from "../../tenancy/domain/tenant-context.js";
 import {
+  PublicBookingAppointmentCanceledError,
   PublicBookingConflictError,
   PublicBookingInvalidSlotError,
   PublicBookingServiceNotFoundError,
@@ -84,6 +87,15 @@ export class PublicBookingController {
     return this.mapErrors(() => this.booking.cancelByToken(input.token));
   }
 
+  @Post("bookings/management/reschedule")
+  @HttpCode(200)
+  reschedule(
+    @Body(new ZodValidationPipe(reschedulePublicBookingSchema))
+    input: ReschedulePublicBookingInput,
+  ): Promise<PublicAppointment> {
+    return this.mapErrors(() => this.booking.rescheduleByToken(input));
+  }
+
   private currentTenant(): TenantContext | undefined {
     return this.tenantContext.getContext();
   }
@@ -106,6 +118,10 @@ export class PublicBookingController {
 
       if (error instanceof PublicBookingConflictError) {
         throw new ConflictException("Appointment slot is no longer available");
+      }
+
+      if (error instanceof PublicBookingAppointmentCanceledError) {
+        throw new BadRequestException("Appointment cannot be rescheduled");
       }
 
       if (
