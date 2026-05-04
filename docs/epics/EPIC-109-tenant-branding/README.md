@@ -1,6 +1,6 @@
 # EPIC-109: Tenant branding
 
-**Status:** 🟢 Active
+**Status:** ✅ Done
 **Owner:** Yuri
 **Criado em:** 2026-05-04
 **Última atualização:** 2026-05-04
@@ -31,18 +31,18 @@ A tabela `tenants` já possui `displayName` e `primaryColor`, mas ainda não exi
 
 ## ✅ Critérios de pronto
 
-- [ ] `GET /admin/tenant/branding` retorna `displayName` e `primaryColor` do tenant atual.
-- [ ] `PATCH /admin/tenant/branding` atualiza `displayName` e `primaryColor`.
-- [ ] `GET /public/tenant/branding` retorna branding sem exigir sessão.
-- [ ] Rotas usam o tenant resolvido pelo `Host`.
-- [ ] `primaryColor` aceita apenas hex `#RRGGBB`.
-- [ ] Testes automatizados passam localmente.
+- [x] `GET /admin/tenant/branding` retorna `displayName` e `primaryColor` do tenant atual.
+- [x] `PATCH /admin/tenant/branding` atualiza `displayName` e `primaryColor`.
+- [x] `GET /public/tenant/branding` retorna branding sem exigir sessão.
+- [x] Rotas usam o tenant resolvido pelo `Host`.
+- [x] `primaryColor` aceita apenas hex `#RRGGBB`.
+- [x] Testes automatizados passam localmente.
 
 ## 🔗 User Stories
 
 | ID | Título | Status |
 |----|--------|--------|
-| [US-001](./US-001-tenant-branding-backend/) | Configurar branding mínimo do tenant | 🟢 |
+| [US-001](./US-001-tenant-branding-backend/) | Configurar branding mínimo do tenant | ✅ |
 
 ## 📚 ADRs relacionados
 
@@ -52,3 +52,4 @@ A tabela `tenants` já possui `displayName` e `primaryColor`, mas ainda não exi
 ## 📜 Histórico
 
 - 2026-05-04: criado escopo backend de branding mínimo do tenant.
+- 2026-05-04: implementado backend de branding mínimo do tenant.

@@ -1,7 +1,7 @@
 # US-001: Configurar branding mínimo do tenant
 
 **Épico pai:** [EPIC-109](../README.md)
-**Status:** 🟢 In progress
+**Status:** ✅ Done
 **Criado em:** 2026-05-04
 
 ## 📖 Narrativa
@@ -68,7 +68,7 @@
 
 | ID | Título | Status |
 |----|--------|--------|
-| [TASK-001](./TASK-001-tenant-branding-backend.md) | Criar backend de branding do tenant | 🟢 |
+| [TASK-001](./TASK-001-tenant-branding-backend.md) | Criar backend de branding do tenant | ✅ |
 
 ## 📚 Referências
 
