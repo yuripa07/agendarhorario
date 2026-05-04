@@ -3,6 +3,7 @@ import {
   createPublicBookingSchema,
   managementTokenSchema,
   publicSlotsQuerySchema,
+  reschedulePublicBookingSchema,
 } from "./booking.js";
 
 describe("booking schemas", () => {
@@ -59,5 +60,31 @@ describe("booking schemas", () => {
     });
 
     expect(() => managementTokenSchema.parse({ token: "" })).toThrow();
+  });
+
+  it("requires a management token and UTC startsAt for reschedule", () => {
+    expect(
+      reschedulePublicBookingSchema.parse({
+        token: "booking-token",
+        startsAt: "2026-05-04T14:00:00.000Z",
+      }),
+    ).toEqual({
+      token: "booking-token",
+      startsAt: new Date("2026-05-04T14:00:00.000Z"),
+    });
+
+    expect(() =>
+      reschedulePublicBookingSchema.parse({
+        token: "",
+        startsAt: "2026-05-04T14:00:00.000Z",
+      }),
+    ).toThrow();
+
+    expect(() =>
+      reschedulePublicBookingSchema.parse({
+        token: "booking-token",
+        startsAt: "2026-05-04T11:00:00-03:00",
+      }),
+    ).toThrow();
   });
 });

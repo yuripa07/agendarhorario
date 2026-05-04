@@ -184,6 +184,70 @@ describe("Public booking API", () => {
       })
       .expect(201);
   });
+
+  it("reschedules a booking by management token and releases the old slot", async () => {
+    const first = await request(server)
+      .post("/public/bookings")
+      .set("Host", tenantHost)
+      .send({
+        serviceId,
+        startsAt: "2026-05-04T13:00:00.000Z",
+        customerName: "Joao Lima",
+        customerEmail: "joao@example.com",
+        customerPhone: "+5511777777777",
+        privacyAccepted: true,
+      })
+      .expect(201);
+
+    const token = sender.messages.at(-1)?.token;
+    expect(token).toBeTruthy();
+
+    const rescheduled = await request(server)
+      .post("/public/bookings/management/reschedule")
+      .send({ token, startsAt: "2026-05-04T14:00:00.000Z" })
+      .expect(200);
+
+    expect(rescheduled.body).toMatchObject({
+      id: first.body.id,
+      status: "confirmed",
+      startsAt: "2026-05-04T14:00:00.000Z",
+      endsAt: "2026-05-04T15:00:00.000Z",
+    });
+
+    await request(server)
+      .post("/public/bookings")
+      .set("Host", tenantHost)
+      .send({
+        serviceId,
+        startsAt: "2026-05-04T13:00:00.000Z",
+        customerName: "Carla Rocha",
+        customerEmail: "carla@example.com",
+        customerPhone: "+5511666666666",
+        privacyAccepted: true,
+      })
+      .expect(201);
+
+    await request(server)
+      .post("/public/bookings")
+      .set("Host", tenantHost)
+      .send({
+        serviceId,
+        startsAt: "2026-05-04T14:00:00.000Z",
+        customerName: "Paula Dias",
+        customerEmail: "paula@example.com",
+        customerPhone: "+5511555555555",
+        privacyAccepted: true,
+      })
+      .expect(409);
+
+    await request(server)
+      .post("/public/bookings/management/lookup")
+      .send({ token })
+      .expect(200)
+      .expect(({ body }) => {
+        expect(body.startsAt).toBe("2026-05-04T14:00:00.000Z");
+      });
+  });
 });
 
 function requireRecord<T>(record: T | undefined): T {
