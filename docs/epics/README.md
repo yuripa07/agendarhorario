@@ -19,3 +19,4 @@
 | [EPIC-108](./EPIC-108-cancel-reschedule/) | Cancel and reschedule | ✅ Done |
 | [EPIC-109](./EPIC-109-tenant-branding/) | Tenant branding | ✅ Done |
 | [EPIC-110](./EPIC-110-email-notifications/) | Email notifications | ✅ Done |
+| [EPIC-111](./EPIC-111-public-booking-ui/) | Public booking UI | ✅ Done |
