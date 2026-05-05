@@ -8,5 +8,6 @@
 - Antes de abrir PR, rode `pnpm lint`, `pnpm typecheck` e `pnpm test`.
 - Rode E2E quando houver mudança em rota ou API.
 - Suba o app localmente quando possível para confirmar que API e web iniciam sem erro.
-- Abra PR contra `main`.
+- Abra PR contra `main` antes de considerar a entrega finalizada.
+- Não registre a abertura da PR em `HISTORY.md` ou task log; o GitHub já mantém esse registro.
 - Não reescreva histórico compartilhado sem combinar com Yuri.
