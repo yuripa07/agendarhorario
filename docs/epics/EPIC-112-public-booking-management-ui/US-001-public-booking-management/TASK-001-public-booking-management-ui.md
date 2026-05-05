@@ -34,6 +34,7 @@ Implementar a página `/booking/manage` no web app para consultar, cancelar e re
 - [x] `pnpm --filter @agendarhorario/web test` passa.
 - [x] `pnpm --filter @agendarhorario/web test:e2e` passa.
 - [x] `pnpm --filter @agendarhorario/web typecheck` passa.
+- [x] PR aberto para `main`.
 
 ## 🔌 APIs e contratos
 
@@ -72,3 +73,4 @@ Implementar a página `/booking/manage` no web app para consultar, cancelar e re
 ## 📜 Log de execução
 
 - 2026-05-05 19:04 — Implementado por Codex com testes de componente, E2E web e validações locais.
+- 2026-05-05 19:05 — PR aberta para `main`: https://github.com/yuripa07/agendarhorario/pull/22.
