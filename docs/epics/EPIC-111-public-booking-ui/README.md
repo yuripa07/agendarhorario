@@ -1,6 +1,6 @@
 # EPIC-111: Public booking UI
 
-**Status:** 📝 Planned
+**Status:** ✅ Done
 **Owner:** Yuri
 **Criado em:** 2026-05-05
 **Última atualização:** 2026-05-05
@@ -37,22 +37,22 @@ O backend já expõe APIs públicas para branding do tenant, serviços ativos, s
 
 ## ✅ Critérios de pronto
 
-- [ ] `/booking` carrega sem sessão administrativa.
-- [ ] O nome e a cor primária do tenant são aplicados a partir de `GET /public/tenant/branding`.
-- [ ] O cliente consegue escolher um serviço ativo.
-- [ ] O cliente consegue consultar e escolher um slot disponível.
-- [ ] O formulário valida nome, e-mail, telefone e aceite de privacidade.
-- [ ] A confirmação chama `POST /public/bookings` com payload compatível com os schemas compartilhados.
-- [ ] O sucesso mostra dados mínimos do appointment sem expor token de gerenciamento.
-- [ ] Conflito `409` é apresentado de forma recuperável.
-- [ ] Arquivos novos de páginas, componentes, hooks, clients e testes usam kebab-case.
-- [ ] Testes unitários/componentes e E2E passam localmente.
+- [x] `/booking` carrega sem sessão administrativa.
+- [x] O nome e a cor primária do tenant são aplicados a partir de `GET /public/tenant/branding`.
+- [x] O cliente consegue escolher um serviço ativo.
+- [x] O cliente consegue consultar e escolher um slot disponível.
+- [x] O formulário valida nome, e-mail, telefone e aceite de privacidade.
+- [x] A confirmação chama `POST /public/bookings` com payload compatível com os schemas compartilhados.
+- [x] O sucesso mostra dados mínimos do appointment sem expor token de gerenciamento.
+- [x] Conflito `409` é apresentado de forma recuperável.
+- [x] Arquivos novos de páginas, componentes, hooks, clients e testes usam kebab-case.
+- [x] Testes unitários/componentes e E2E passam localmente.
 
 ## 🔗 User Stories
 
 | ID | Título | Status |
 |----|--------|--------|
-| [US-001](./US-001-public-booking-flow/) | Agendar pelo fluxo público web | 📝 Planned |
+| [US-001](./US-001-public-booking-flow/) | Agendar pelo fluxo público web | ✅ Done |
 
 ## 📚 ADRs relacionados
 
@@ -62,3 +62,4 @@ O backend já expõe APIs públicas para branding do tenant, serviços ativos, s
 ## 📜 Histórico
 
 - 2026-05-05: planejado escopo da UI pública de booking.
+- 2026-05-05: implementada UI pública de booking em `/booking`.

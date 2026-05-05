@@ -32,7 +32,7 @@ describe("BookingPage", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Corte masculino/ }));
 
     expect(await screen.findByRole("heading", { name: "Escolha um horario" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /09:00/ })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /09:00/ })).toBeInTheDocument();
   });
 
   it("validates customer details before submitting", async () => {

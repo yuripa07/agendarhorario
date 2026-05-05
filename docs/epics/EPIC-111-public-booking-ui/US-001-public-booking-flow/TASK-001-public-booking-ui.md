@@ -1,7 +1,7 @@
 # TASK-001: Criar UI pública de booking
 
 **US pai:** [US-001](./README.md)
-**Status:** 📝 Planned
+**Status:** ✅ Done
 **Tipo:** feature
 **Atribuído a:** Codex
 
@@ -11,28 +11,28 @@ Implementar a página `/booking` no web app com fluxo em etapas para criar agend
 
 ## 📋 Passos de execução
 
-1. [ ] Criar testes de componente inicialmente falhando para o fluxo público.
-2. [ ] Criar E2E web inicialmente falhando para criação de booking em `/booking`.
-3. [ ] Criar client HTTP público para branding, serviços, slots e criação de booking.
-4. [ ] Adicionar rota `/booking` no TanStack Router.
-5. [ ] Criar página `booking-page.tsx` com fluxo em etapas.
-6. [ ] Criar componentes de seleção de serviço, seleção de horário, formulário de dados e confirmação.
-7. [ ] Integrar validação com React Hook Form, Zod e schemas compartilhados.
-8. [ ] Tratar estados de loading, vazio, erro, conflito `409` e sucesso.
-9. [ ] Aplicar branding público do tenant na experiência.
-10. [ ] Validar localmente e atualizar documentação se necessário.
+1. [x] Criar testes de componente inicialmente falhando para o fluxo público.
+2. [x] Criar E2E web inicialmente falhando para criação de booking em `/booking`.
+3. [x] Criar client HTTP público para branding, serviços, slots e criação de booking.
+4. [x] Adicionar rota `/booking` no TanStack Router.
+5. [x] Criar página `booking-page.tsx` com fluxo em etapas.
+6. [x] Criar componentes de seleção de serviço, seleção de horário, formulário de dados e confirmação.
+7. [x] Integrar validação com React Hook Form, Zod e schemas compartilhados.
+8. [x] Tratar estados de loading, vazio, erro, conflito `409` e sucesso.
+9. [x] Aplicar branding público do tenant na experiência.
+10. [x] Validar localmente e atualizar documentação se necessário.
 
 ## ✅ Definition of Done
 
-- [ ] Código implementado seguindo TDD.
-- [ ] `/booking` funciona sem sessão administrativa.
-- [ ] A UI consome `GET /public/tenant/branding`.
-- [ ] A UI consome `GET /public/services`.
-- [ ] A UI consome `GET /public/services/:serviceId/slots`.
-- [ ] A UI envia `POST /public/bookings` com payload válido.
-- [ ] Conflito `409` permite recuperação sem perder os dados do cliente.
-- [ ] A confirmação não mostra token de gerenciamento.
-- [ ] Arquivos novos de páginas, componentes, hooks, clients e testes usam kebab-case.
+- [x] Código implementado seguindo TDD.
+- [x] `/booking` funciona sem sessão administrativa.
+- [x] A UI consome `GET /public/tenant/branding`.
+- [x] A UI consome `GET /public/services`.
+- [x] A UI consome `GET /public/services/:serviceId/slots`.
+- [x] A UI envia `POST /public/bookings` com payload válido.
+- [x] Conflito `409` permite recuperação sem perder os dados do cliente.
+- [x] A confirmação não mostra token de gerenciamento.
+- [x] Arquivos novos de páginas, componentes, hooks, clients e testes usam kebab-case.
 - [ ] `pnpm lint` passa.
 - [ ] `pnpm typecheck` passa.
 - [ ] `pnpm test` passa.
@@ -79,3 +79,4 @@ Implementar a página `/booking` no web app com fluxo em etapas para criar agend
 ## 📜 Log de execução
 
 - 2026-05-05 — Planejado por Codex.
+- 2026-05-05 — Implementado por Codex com testes de componente, E2E web e client público.

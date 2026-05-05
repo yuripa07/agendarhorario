@@ -1,6 +1,6 @@
 # US-001: Agendar pelo fluxo público web
 
-**Status:** 📝 Planned
+**Status:** ✅ Done
 **EPIC:** [EPIC-111](../README.md)
 
 ## User Story
@@ -62,4 +62,4 @@
 
 | ID | Título | Status |
 |----|--------|--------|
-| [TASK-001](./TASK-001-public-booking-ui.md) | Criar UI pública de booking | 📝 Planned |
+| [TASK-001](./TASK-001-public-booking-ui.md) | Criar UI pública de booking | ✅ Done |

@@ -1,11 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createRootRoute, createRoute, createRouter, RouterProvider } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Outlet,
+  RouterProvider,
+} from "@tanstack/react-router";
+import { BookingPage } from "../pages/booking/booking-page.js";
 import { HomePage } from "../pages/home/HomePage.js";
 
 const queryClient = new QueryClient();
 
 const rootRoute = createRootRoute({
-  component: () => <HomePage />,
+  component: () => <Outlet />,
 });
 
 const indexRoute = createRoute({
@@ -14,7 +21,13 @@ const indexRoute = createRoute({
   component: HomePage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute]);
+const bookingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/booking",
+  component: BookingPage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, bookingRoute]);
 
 const router = createRouter({ routeTree });
 
