@@ -1,5 +1,6 @@
 import {
   type CreatePublicBookingInput,
+  type ManagementTokenInput,
   type PublicAppointment,
   type PublicService,
   type PublicSlot,
@@ -7,6 +8,7 @@ import {
   publicAppointmentSchema,
   publicServiceSchema,
   publicSlotSchema,
+  type ReschedulePublicBookingInput,
   type TenantBranding,
   tenantBrandingSchema,
 } from "@agendarhorario/shared";
@@ -26,6 +28,14 @@ export class PublicBookingHttpError extends Error {
 
 export function isBookingConflict(error: unknown): boolean {
   return error instanceof PublicBookingHttpError && error.status === 409;
+}
+
+export function isPublicBookingNotFound(error: unknown): boolean {
+  return error instanceof PublicBookingHttpError && error.status === 404;
+}
+
+export function isPublicBookingInvalidRequest(error: unknown): boolean {
+  return error instanceof PublicBookingHttpError && error.status === 400;
 }
 
 export async function getTenantBranding(): Promise<TenantBranding> {
@@ -55,6 +65,38 @@ export async function createPublicBooking(
 ): Promise<PublicAppointment> {
   return publicAppointmentSchema.parse(
     await request("/public/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+  );
+}
+
+export async function lookupPublicBooking(input: ManagementTokenInput): Promise<PublicAppointment> {
+  return publicAppointmentSchema.parse(
+    await request("/public/bookings/management/lookup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+  );
+}
+
+export async function cancelPublicBooking(input: ManagementTokenInput): Promise<PublicAppointment> {
+  return publicAppointmentSchema.parse(
+    await request("/public/bookings/management/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+  );
+}
+
+export async function reschedulePublicBooking(
+  input: ReschedulePublicBookingInput,
+): Promise<PublicAppointment> {
+  return publicAppointmentSchema.parse(
+    await request("/public/bookings/management/reschedule", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
