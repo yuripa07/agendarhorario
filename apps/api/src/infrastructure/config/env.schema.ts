@@ -9,6 +9,8 @@ export const envSchema = z.object({
     .url()
     .default("postgres://agendarhorario:agendarhorario@localhost:5432/agendarhorario"),
   WEB_ORIGIN: z.string().url().default("http://localhost:5173"),
+  RESEND_API_KEY: z.string().min(1).optional(),
+  EMAIL_FROM: z.string().min(1).default("Agendar Horario <no-reply@localhost>"),
   BETTER_AUTH_SECRET: z.string().min(32).default("development-better-auth-secret-change-me"),
   BETTER_AUTH_URL: z.string().url().default("http://localhost:3000"),
   ROOT_DOMAIN: z.string().min(1).default("agendarhorario.com.br"),

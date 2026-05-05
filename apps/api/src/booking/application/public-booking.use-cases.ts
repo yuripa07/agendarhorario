@@ -7,10 +7,15 @@ import type {
   PublicSlotsQuery,
   ReschedulePublicBookingInput,
 } from "@agendarhorario/shared";
+import { Logger } from "@nestjs/common";
 import { addDays } from "date-fns";
 import { calculateAvailableSlots } from "../../scheduling/domain/index.js";
 import type { TenantContext } from "../../tenancy/domain/tenant-context.js";
-import type { BookingManagementLinkSender } from "./booking-management-link.sender.js";
+import type {
+  BookingCreatedNotification,
+  BookingNotificationAppointment,
+  BookingNotificationSender,
+} from "./booking-notification.sender.js";
 import type { PublicBookingRepository } from "./public-booking.repository.js";
 
 type Clock = () => Date;
@@ -18,9 +23,11 @@ type TokenGenerator = () => string;
 type PublicBookingTenant = Pick<TenantContext, "tenantId" | "timezone">;
 
 export class PublicBookingUseCases {
+  private readonly logger = new Logger(PublicBookingUseCases.name);
+
   constructor(
     private readonly repository: PublicBookingRepository,
-    private readonly managementLinkSender: BookingManagementLinkSender,
+    private readonly notifications: BookingNotificationSender,
     private readonly clock: Clock = () => new Date(),
     private readonly tokenGenerator: TokenGenerator = () => randomBytes(32).toString("base64url"),
   ) {}
@@ -92,10 +99,12 @@ export class PublicBookingUseCases {
       managementTokenExpiresAt: addDays(this.clock(), 7),
     });
 
-    await this.managementLinkSender.send({
+    await this.notifyBookingCreated({
       customerEmail: appointment.customerEmail,
       customerName: appointment.customerName,
-      appointmentId: appointment.id,
+      serviceName: service.name,
+      startsAt: appointment.startsAt,
+      timezone: tenant.timezone,
       token,
     });
 
@@ -111,8 +120,11 @@ export class PublicBookingUseCases {
   async cancelByToken(token: string): Promise<PublicAppointment> {
     const existing = await this.lookupByToken(token);
     const canceled = await this.repository.cancelByManagementTokenHash(hashManagementToken(token));
+    const appointment = canceled ?? existing;
 
-    return canceled ?? existing;
+    await this.notifyAppointment("bookingCanceled", appointment);
+
+    return appointment;
   }
 
   async rescheduleByToken(input: ReschedulePublicBookingInput): Promise<PublicAppointment> {
@@ -172,6 +184,14 @@ export class PublicBookingUseCases {
         throw new PublicBookingAppointmentCanceledError();
       }
 
+      await this.notifyBookingRescheduled({
+        customerEmail: rescheduled.customerEmail,
+        customerName: rescheduled.customerName,
+        serviceName: service.name,
+        startsAt: rescheduled.startsAt,
+        timezone,
+      });
+
       return rescheduled;
     } catch (error) {
       if (isAppointmentConflictError(error)) {
@@ -225,6 +245,64 @@ export class PublicBookingUseCases {
     }
   }
 
+  private async notifyAppointment(
+    type: "bookingCanceled" | "bookingRescheduled",
+    appointment: PublicAppointment,
+  ): Promise<void> {
+    try {
+      const [service, timezone] = await Promise.all([
+        this.repository.findActiveService(appointment.tenantId, appointment.serviceId),
+        this.repository.findTenantTimezone(appointment.tenantId),
+      ]);
+
+      const input: BookingNotificationAppointment = {
+        customerEmail: appointment.customerEmail,
+        customerName: appointment.customerName,
+        startsAt: appointment.startsAt,
+        timezone: timezone ?? "UTC",
+      };
+
+      if (service?.name) {
+        await this.notify(type, { ...input, serviceName: service.name });
+
+        return;
+      }
+
+      await this.notify(type, input);
+    } catch (error) {
+      this.logger.warn(
+        `Booking notification ${type} failed for ${appointment.customerEmail}: ${getErrorMessage(error)}`,
+      );
+    }
+  }
+
+  private async notifyBookingCreated(input: BookingCreatedNotification): Promise<void> {
+    try {
+      await this.notifications.bookingCreated(input);
+    } catch (error) {
+      this.logger.warn(
+        `Booking notification bookingCreated failed for ${input.customerEmail}: ${getErrorMessage(error)}`,
+      );
+    }
+  }
+
+  private async notifyBookingRescheduled(input: BookingNotificationAppointment): Promise<void> {
+    await this.notify("bookingRescheduled", input);
+  }
+
+  private async notify(
+    type: "bookingCanceled" | "bookingRescheduled",
+    input: BookingNotificationAppointment,
+  ): Promise<void> {
+    try {
+      await this.notifications[type](input);
+    } catch (error) {
+      this.logger.warn(
+        `Booking notification ${type} failed for ${input.customerEmail}: ${getErrorMessage(error)}`,
+      );
+    }
+  }
+
   private requireTenant(context: PublicBookingTenant | undefined): PublicBookingTenant {
     if (!context) {
       throw new PublicBookingTenantRequiredError();
@@ -272,6 +350,10 @@ function isAppointmentConflictError(error: unknown): boolean {
       "code" in error &&
       (error.code === "23P01" || error.code === "23505"))
   );
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown error";
 }
 
 export class PublicBookingTenantRequiredError extends Error {
