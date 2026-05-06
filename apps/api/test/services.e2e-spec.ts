@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { DATABASE, type Database } from "../src/infrastructure/database/database.module.js";
-import { tenants, user } from "../src/infrastructure/database/schema.js";
+import { adminTenantMemberships, tenants, user } from "../src/infrastructure/database/schema.js";
 import { AppModule } from "../src/presentation/app.module.js";
 import { ADMIN_SERVICES_ROUTE } from "../src/services/services.constants.js";
 
@@ -29,10 +29,13 @@ describe("Service catalog", () => {
     database = moduleRef.get<Database>(DATABASE);
     server = app.getHttpServer();
 
-    await database.insert(tenants).values({
-      slug: tenantSlug,
-      displayName: "Catalog Tenant",
-    });
+    const [tenant] = await database
+      .insert(tenants)
+      .values({
+        slug: tenantSlug,
+        displayName: "Catalog Tenant",
+      })
+      .returning();
 
     const authResponse = await request(server).post("/auth/sign-up/email").send({
       email: adminEmail,
@@ -48,6 +51,11 @@ describe("Service catalog", () => {
     if (!setCookie) {
       throw new AuthCookieMissingError();
     }
+
+    await database.insert(adminTenantMemberships).values({
+      tenantId: requireRecord(tenant).id,
+      userId: authResponse.body.user.id,
+    });
 
     sessionCookie = setCookie;
   });
@@ -112,4 +120,12 @@ class AuthCookieMissingError extends Error {
     super("Auth cookie missing from sign up response");
     this.name = "AuthCookieMissingError";
   }
+}
+
+function requireRecord<T>(record: T | undefined): T {
+  if (!record) {
+    throw new Error("Expected record to exist");
+  }
+
+  return record;
 }

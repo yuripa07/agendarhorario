@@ -1,8 +1,11 @@
 import {
+  type AcceptedTenantInvite,
+  type AcceptTenantInviteInput,
   type AdminCalendarAppointment,
   type AdminCalendarQuery,
   type AdminCalendarSlot,
   type AvailabilityBlock,
+  acceptedTenantInviteSchema,
   adminCalendarAppointmentSchema,
   availabilityBlockSchema,
   type CreateAdminAppointmentInput,
@@ -15,7 +18,9 @@ import {
   type Service,
   serviceSchema,
   type TenantBranding,
+  type TenantInviteLookup,
   tenantBrandingSchema,
+  tenantInviteLookupSchema,
   type UpdateServiceInput,
   type UpdateTenantBrandingInput,
   type WorkingHour,
@@ -58,6 +63,28 @@ export async function signInAdmin(input: {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
+      body: JSON.stringify(input),
+    }),
+  );
+}
+
+export async function lookupTenantInvite(input: { token: string }): Promise<TenantInviteLookup> {
+  return tenantInviteLookupSchema.parse(
+    await request("/admin/onboarding/lookup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }),
+  );
+}
+
+export async function acceptTenantInvite(
+  input: AcceptTenantInviteInput,
+): Promise<AcceptedTenantInvite> {
+  return acceptedTenantInviteSchema.parse(
+    await request("/admin/onboarding/accept", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
     }),
   );

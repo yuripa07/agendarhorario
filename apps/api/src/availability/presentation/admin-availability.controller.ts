@@ -18,14 +18,17 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from "@nestjs/common";
 import { ZodValidationPipe } from "../../presentation/pipes/zod-validation.pipe.js";
 import { TenantContextService } from "../../tenancy/application/tenant-context.service.js";
+import { AdminTenantMembershipGuard } from "../../tenancy/presentation/admin-tenant-membership.guard.js";
 import { AvailabilityUseCases } from "../application/availability.use-cases.js";
 import { ADMIN_AVAILABILITY_ROUTE } from "../availability.constants.js";
 import { AvailabilityBlockNotFoundError } from "../domain/availability.errors.js";
 
 @Controller(ADMIN_AVAILABILITY_ROUTE)
+@UseGuards(AdminTenantMembershipGuard)
 export class AdminAvailabilityController {
   constructor(
     @Inject(TenantContextService)

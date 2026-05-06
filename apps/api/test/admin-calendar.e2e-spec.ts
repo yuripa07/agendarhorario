@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ADMIN_CALENDAR_ROUTE } from "../src/booking/booking.constants.js";
 import { DATABASE, type Database } from "../src/infrastructure/database/database.module.js";
 import {
+  adminTenantMemberships,
   appointments,
   services,
   tenants,
@@ -147,6 +148,11 @@ describe("Admin calendar", () => {
     if (!setCookie) {
       throw new AuthCookieMissingError();
     }
+
+    await database.insert(adminTenantMemberships).values({
+      tenantId,
+      userId: authResponse.body.user.id,
+    });
 
     sessionCookie = setCookie;
   });

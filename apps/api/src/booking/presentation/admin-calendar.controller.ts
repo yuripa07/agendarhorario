@@ -22,9 +22,11 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from "@nestjs/common";
 import { ZodValidationPipe } from "../../presentation/pipes/zod-validation.pipe.js";
 import { TenantContextService } from "../../tenancy/application/tenant-context.service.js";
+import { AdminTenantMembershipGuard } from "../../tenancy/presentation/admin-tenant-membership.guard.js";
 import {
   AdminCalendarAppointmentCanceledError,
   AdminCalendarAppointmentNotFoundError,
@@ -36,6 +38,7 @@ import {
 import { ADMIN_CALENDAR_ROUTE } from "../booking.constants.js";
 
 @Controller(ADMIN_CALENDAR_ROUTE)
+@UseGuards(AdminTenantMembershipGuard)
 export class AdminCalendarController {
   constructor(
     @Inject(TenantContextService)

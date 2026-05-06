@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { DATABASE, type Database } from "../src/infrastructure/database/database.module.js";
-import { tenants, user } from "../src/infrastructure/database/schema.js";
+import { adminTenantMemberships, tenants, user } from "../src/infrastructure/database/schema.js";
 import { AppModule } from "../src/presentation/app.module.js";
 
 describe("Tenant branding API", () => {
@@ -30,18 +30,21 @@ describe("Tenant branding API", () => {
     database = moduleRef.get<Database>(DATABASE);
     server = app.getHttpServer();
 
-    await database.insert(tenants).values([
-      {
-        slug: tenantSlug,
-        displayName: "Branding Tenant",
-        primaryColor: "#2563eb",
-      },
-      {
-        slug: otherTenantSlug,
-        displayName: "Other Branding Tenant",
-        primaryColor: "#16a34a",
-      },
-    ]);
+    const [tenant] = await database
+      .insert(tenants)
+      .values([
+        {
+          slug: tenantSlug,
+          displayName: "Branding Tenant",
+          primaryColor: "#2563eb",
+        },
+        {
+          slug: otherTenantSlug,
+          displayName: "Other Branding Tenant",
+          primaryColor: "#16a34a",
+        },
+      ])
+      .returning();
 
     const authResponse = await request(server).post("/auth/sign-up/email").send({
       email: adminEmail,
@@ -57,6 +60,11 @@ describe("Tenant branding API", () => {
     if (!setCookie) {
       throw new AuthCookieMissingError();
     }
+
+    await database.insert(adminTenantMemberships).values({
+      tenantId: requireRecord(tenant).id,
+      userId: authResponse.body.user.id,
+    });
 
     sessionCookie = setCookie;
   });
@@ -136,4 +144,12 @@ class AuthCookieMissingError extends Error {
     super("Auth cookie missing from sign up response");
     this.name = "AuthCookieMissingError";
   }
+}
+
+function requireRecord<T>(record: T | undefined): T {
+  if (!record) {
+    throw new Error("Expected record to exist");
+  }
+
+  return record;
 }
