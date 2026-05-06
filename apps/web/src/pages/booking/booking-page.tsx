@@ -7,11 +7,11 @@ import {
 } from "@agendarhorario/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { BookingConfirmation } from "./booking-confirmation.js";
+import { BookingShell } from "./booking-shell.js";
 import { CustomerDetailsStep } from "./customer-details-step.js";
 import {
   createPublicBooking,
@@ -185,38 +185,6 @@ export function BookingPage(): React.JSX.Element {
         </form>
       )}
     </BookingShell>
-  );
-}
-
-function BookingShell({
-  displayName,
-  primaryColor,
-  children,
-}: {
-  displayName: string;
-  primaryColor: string;
-  children: React.ReactNode;
-}): React.JSX.Element {
-  return (
-    <main
-      className="min-h-dvh bg-background text-foreground"
-      style={{ "--public-primary": primaryColor } as React.CSSProperties}
-    >
-      <section className="mx-auto flex w-full max-w-3xl flex-col px-5 py-6 sm:px-6 sm:py-10">
-        <header className="mb-8 flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-md bg-[var(--public-primary)] text-white">
-            <CalendarDays className="size-5" aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-muted-foreground">{displayName}</p>
-            <h1 className="text-2xl font-semibold tracking-normal text-foreground">
-              Agendar horario
-            </h1>
-          </div>
-        </header>
-        {children}
-      </section>
-    </main>
   );
 }
 

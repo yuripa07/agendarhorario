@@ -20,3 +20,4 @@
 | [EPIC-109](./EPIC-109-tenant-branding/) | Tenant branding | ✅ Done |
 | [EPIC-110](./EPIC-110-email-notifications/) | Email notifications | ✅ Done |
 | [EPIC-111](./EPIC-111-public-booking-ui/) | Public booking UI | ✅ Done |
+| [EPIC-112](./EPIC-112-public-booking-management-ui/) | Public booking management UI | ✅ Done |

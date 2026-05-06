@@ -6,6 +6,7 @@ import {
   Outlet,
   RouterProvider,
 } from "@tanstack/react-router";
+import { BookingManagementPage } from "../pages/booking/booking-management-page.js";
 import { BookingPage } from "../pages/booking/booking-page.js";
 import { HomePage } from "../pages/home/HomePage.js";
 
@@ -27,7 +28,13 @@ const bookingRoute = createRoute({
   component: BookingPage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, bookingRoute]);
+const bookingManagementRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/booking/manage",
+  component: BookingManagementPage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, bookingRoute, bookingManagementRoute]);
 
 const router = createRouter({ routeTree });
 
