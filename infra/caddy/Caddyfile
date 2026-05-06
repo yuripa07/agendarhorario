@@ -5,8 +5,12 @@
 {$DOMAIN}, *.{$DOMAIN} {
   encode zstd gzip
 
-  @api path /api/* /health
-  handle @api {
+  handle /api/* {
+    uri strip_prefix /api
+    reverse_proxy api:3000
+  }
+
+  handle /health {
     reverse_proxy api:3000
   }
 

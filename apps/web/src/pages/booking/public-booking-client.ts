@@ -13,8 +13,7 @@ import {
   tenantBrandingSchema,
 } from "@agendarhorario/shared";
 import { z } from "zod";
-
-const defaultApiUrl = "http://localhost:3000";
+import { apiBaseUrl } from "../../shared/api/api-base-url.js";
 
 export class PublicBookingHttpError extends Error {
   constructor(
@@ -102,10 +101,6 @@ export async function reschedulePublicBooking(
       body: JSON.stringify(input),
     }),
   );
-}
-
-function apiBaseUrl(): string {
-  return (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") || defaultApiUrl;
 }
 
 async function request(path: string, init?: RequestInit): Promise<unknown> {

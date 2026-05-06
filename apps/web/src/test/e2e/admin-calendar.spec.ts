@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const apiUrl = "http://localhost:3000";
+const apiUrl = "http://127.0.0.1:3000";
 
 test("admin signs in and sees the weekly calendar", async ({ page }) => {
   await page.route(`${apiUrl}/auth/sign-in/email`, async (route) => {

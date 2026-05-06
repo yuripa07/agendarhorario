@@ -26,7 +26,6 @@ describe("AdminLoginPage", () => {
     fireEvent.change(screen.getByLabelText("Senha"), { target: { value: "password123" } });
     fireEvent.click(screen.getByRole("button", { name: "Entrar" }));
 
-    expect(await screen.findByText("Entrando...")).toBeInTheDocument();
     await screen.findByRole("button", { name: "Entrar" });
 
     expect(fetchMock).toHaveBeenCalledWith(

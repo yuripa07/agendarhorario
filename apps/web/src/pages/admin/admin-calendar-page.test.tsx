@@ -10,15 +10,12 @@ const serviceId = "11111111-1111-4111-8111-111111111111";
 
 describe("AdminCalendarPage", () => {
   beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-05-05T15:00:00.000Z"));
     vi.stubEnv("VITE_API_URL", apiUrl);
-    setLocation("/admin/calendar");
+    setLocation("/admin/calendar?date=2026-05-05");
     vi.stubGlobal("fetch", vi.fn(createFetchHandler()));
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
     setLocation("/");
@@ -113,21 +110,31 @@ function createFetchHandler(options: { sessionStatus?: number } = {}) {
     }
 
     if (url.startsWith(`${apiUrl}/admin/calendar/appointments`)) {
-      return json([
+      const requestedUrl = new URL(url);
+      const startsAt = new Date(requestedUrl.searchParams.get("startsAt") ?? "");
+      const endsAt = new Date(requestedUrl.searchParams.get("endsAt") ?? "");
+      const appointments = [
         appointment({
+          id: appointmentId,
           customerName: "Maria Silva",
           startsAt: "2026-05-05T12:00:00.000Z",
           endsAt: "2026-05-05T13:00:00.000Z",
           status: "confirmed",
         }),
         appointment({
+          id: "44444444-4444-4444-8444-444444444444",
           customerName: "Ana Souza",
           startsAt: "2026-05-06T14:00:00.000Z",
           endsAt: "2026-05-06T15:00:00.000Z",
           status: "canceled",
           canceledAt: "2026-05-05T18:00:00.000Z",
         }),
-      ]);
+      ].filter((calendarAppointment) => {
+        const appointmentStartsAt = new Date(String(calendarAppointment.startsAt));
+        return appointmentStartsAt >= startsAt && appointmentStartsAt < endsAt;
+      });
+
+      return json(appointments);
     }
 
     if (url === `${apiUrl}/auth/sign-out` && init?.method === "POST") {
@@ -139,6 +146,7 @@ function createFetchHandler(options: { sessionStatus?: number } = {}) {
 }
 
 function appointment(input: {
+  id: string;
   customerName: string;
   startsAt: string;
   endsAt: string;
@@ -146,7 +154,7 @@ function appointment(input: {
   canceledAt?: string | null;
 }): Record<string, unknown> {
   return {
-    id: appointmentId,
+    id: input.id,
     tenantId,
     serviceId,
     serviceName: "Consulta",
