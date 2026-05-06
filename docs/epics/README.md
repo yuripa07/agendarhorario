@@ -21,3 +21,4 @@
 | [EPIC-110](./EPIC-110-email-notifications/) | Email notifications | ✅ Done |
 | [EPIC-111](./EPIC-111-public-booking-ui/) | Public booking UI | ✅ Done |
 | [EPIC-112](./EPIC-112-public-booking-management-ui/) | Public booking management UI | ✅ Done |
+| [EPIC-113](./EPIC-113-admin-calendar-ui/) | Admin calendar UI | 🚧 Planned |
