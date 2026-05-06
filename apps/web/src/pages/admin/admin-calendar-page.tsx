@@ -1,46 +1,22 @@
 import type { AdminCalendarAppointment } from "@agendarhorario/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, ChevronLeft, ChevronRight, LogOut, Mail, Phone } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight, Mail, Phone } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import {
-  getAdminSession,
-  isUnauthorized,
-  listAdminCalendarAppointments,
-  signOutAdmin,
-} from "./admin-client.js";
+import { isUnauthorized, listAdminCalendarAppointments } from "./admin-client.js";
+import { AdminShell, navigateTo } from "./admin-shell.js";
 
 type CalendarMode = "day" | "week";
 
 export function AdminCalendarPage(): React.JSX.Element {
-  const queryClient = useQueryClient();
   const [mode, setMode] = useState<CalendarMode>("day");
   const [selectedDate, setSelectedDate] = useState(readInitialDate);
   const windowRange = useMemo(() => createCalendarWindow(selectedDate, mode), [selectedDate, mode]);
 
-  const sessionQuery = useQuery({
-    queryKey: ["admin", "session"],
-    queryFn: getAdminSession,
-    retry: false,
-  });
   const appointmentsQuery = useQuery({
     queryKey: ["admin", "calendar", mode, windowRange.startsAt, windowRange.endsAt],
     queryFn: () => listAdminCalendarAppointments(windowRange),
-    enabled: sessionQuery.isSuccess,
     retry: false,
   });
-  const signOutMutation = useMutation({
-    mutationFn: signOutAdmin,
-    onSuccess: async () => {
-      await queryClient.clear();
-      navigateTo("/admin/login");
-    },
-  });
-
-  useEffect(() => {
-    if (sessionQuery.isError && isUnauthorized(sessionQuery.error)) {
-      navigateTo("/admin/login");
-    }
-  }, [sessionQuery.error, sessionQuery.isError]);
 
   useEffect(() => {
     if (appointmentsQuery.isError && isUnauthorized(appointmentsQuery.error)) {
@@ -48,79 +24,30 @@ export function AdminCalendarPage(): React.JSX.Element {
     }
   }, [appointmentsQuery.error, appointmentsQuery.isError]);
 
-  if (sessionQuery.isLoading) {
-    return <AdminLoading />;
-  }
-
-  if (sessionQuery.isError && isUnauthorized(sessionQuery.error)) {
-    return <AdminLoading />;
-  }
-
   const appointments = appointmentsQuery.data ?? [];
-  const hasGenericError =
-    sessionQuery.isError ||
-    (appointmentsQuery.isError && !isUnauthorized(appointmentsQuery.error)) ||
-    signOutMutation.isError;
+  const hasGenericError = appointmentsQuery.isError && !isUnauthorized(appointmentsQuery.error);
 
   return (
-    <main className="min-h-dvh bg-background text-foreground">
-      <section className="mx-auto flex w-full max-w-6xl flex-col px-5 py-6 sm:px-6 sm:py-8">
-        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <CalendarDays className="size-5" aria-hidden="true" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-muted-foreground">
-                {sessionQuery.data?.user.email}
-              </p>
-              <h1 className="text-2xl font-semibold tracking-normal text-foreground">Agenda</h1>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => signOutMutation.mutate()}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-border bg-card px-3 text-sm font-semibold text-card-foreground transition hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-          >
-            <LogOut className="size-4" aria-hidden="true" />
-            Sair
-          </button>
-        </header>
+    <AdminShell title="Agenda" genericError={hasGenericError}>
+      <CalendarToolbar
+        mode={mode}
+        selectedDate={selectedDate}
+        onModeChange={setMode}
+        onPrevious={() => setSelectedDate(addUtcDays(selectedDate, mode === "day" ? -1 : -7))}
+        onToday={() => setSelectedDate(startOfUtcDay(new Date()))}
+        onNext={() => setSelectedDate(addUtcDays(selectedDate, mode === "day" ? 1 : 7))}
+      />
 
-        {hasGenericError ? (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            Nao foi possivel carregar a agenda. Tente novamente em instantes.
-          </div>
-        ) : null}
-
-        <CalendarToolbar
-          mode={mode}
-          selectedDate={selectedDate}
-          onModeChange={setMode}
-          onPrevious={() => setSelectedDate(addUtcDays(selectedDate, mode === "day" ? -1 : -7))}
-          onToday={() => setSelectedDate(startOfUtcDay(new Date()))}
-          onNext={() => setSelectedDate(addUtcDays(selectedDate, mode === "day" ? 1 : 7))}
-        />
-
-        {appointmentsQuery.isLoading ? (
-          <div className="mt-5 rounded-md border border-border bg-card p-5 text-sm text-muted-foreground">
-            Carregando agenda...
-          </div>
-        ) : mode === "day" ? (
-          <DayCalendar appointments={appointments} />
-        ) : (
-          <WeekCalendar appointments={appointments} weekStart={startOfUtcWeek(selectedDate)} />
-        )}
-      </section>
-    </main>
-  );
-}
-
-function AdminLoading(): React.JSX.Element {
-  return (
-    <main className="flex min-h-dvh items-center justify-center bg-background px-5 text-sm text-muted-foreground">
-      Carregando painel...
-    </main>
+      {appointmentsQuery.isLoading ? (
+        <div className="mt-5 rounded-md border border-border bg-card p-5 text-sm text-muted-foreground">
+          Carregando agenda...
+        </div>
+      ) : mode === "day" ? (
+        <DayCalendar appointments={appointments} />
+      ) : (
+        <WeekCalendar appointments={appointments} weekStart={startOfUtcWeek(selectedDate)} />
+      )}
+    </AdminShell>
   );
 }
 
@@ -382,11 +309,6 @@ function formatTime(value: Date): string {
     minute: "2-digit",
     timeZone: "America/Sao_Paulo",
   }).format(value);
-}
-
-function navigateTo(path: string): void {
-  window.history.pushState({}, "", path);
-  window.dispatchEvent(new PopStateEvent("popstate"));
 }
 
 function readInitialDate(): Date {
