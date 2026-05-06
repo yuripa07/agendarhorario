@@ -19,7 +19,9 @@ describe("Tenant onboarding", () => {
   const otherTenantSlug = `onboarding-other-${Date.now()}`;
   const otherTenantHost = `${otherTenantSlug}.agendarhorario.com.br`;
   const adminEmail = `onboarding-admin-${Date.now()}@example.com`;
+  const existingAdminEmail = `existing-onboarding-admin-${Date.now()}@example.com`;
   const inviteToken = `tenant-onboarding-token-${Date.now()}`;
+  const existingInviteToken = `existing-tenant-onboarding-token-${Date.now()}`;
 
   let moduleRef: TestingModule;
   let database: Database;
@@ -139,6 +141,45 @@ describe("Tenant onboarding", () => {
         password: "password123",
       })
       .expect(409);
+  });
+
+  it("links an existing admin account when accepting an invite with the current password", async () => {
+    const existingSignUp = await request(server).post("/auth/sign-up/email").send({
+      email: existingAdminEmail,
+      password: "password123",
+      name: "Existing Admin",
+    });
+
+    expect(existingSignUp.status).toBe(200);
+
+    await database.insert(tenantOnboardingInvites).values({
+      tenantId: otherTenantId,
+      adminEmail: existingAdminEmail,
+      tokenHash: hashTenantInviteToken(existingInviteToken),
+      expiresAt: new Date("2026-06-01T00:00:00.000Z"),
+    });
+
+    const accepted = await request(server)
+      .post("/admin/onboarding/accept")
+      .send({
+        token: existingInviteToken,
+        name: "Existing Admin",
+        password: "password123",
+      })
+      .expect(201);
+
+    expect(accepted.body).toMatchObject({
+      tenantSlug: otherTenantSlug,
+      adminEmail: existingAdminEmail,
+      userId: existingSignUp.body.user.id,
+    });
+
+    const membershipRows = await database
+      .select()
+      .from(adminTenantMemberships)
+      .where(eq(adminTenantMemberships.userId, existingSignUp.body.user.id));
+
+    expect(membershipRows.some((membership) => membership.tenantId === otherTenantId)).toBe(true);
   });
 });
 

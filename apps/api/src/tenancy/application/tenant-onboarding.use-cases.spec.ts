@@ -160,7 +160,7 @@ class FakeTenantOnboardingRepository implements TenantOnboardingRepository {
 class FakeTenantOnboardingAuth implements TenantOnboardingAuth {
   createdUsers: Array<{ email: string; name: string; password: string }> = [];
 
-  async createUser(input: { email: string; name: string; password: string }) {
+  async createOrVerifyUser(input: { email: string; name: string; password: string }) {
     this.createdUsers.push({
       email: input.email,
       name: input.name,

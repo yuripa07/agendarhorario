@@ -14,6 +14,7 @@ import {
   Inject,
   NotFoundException,
   Post,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { AllowAnonymous } from "@thallesp/nestjs-better-auth";
 import { ZodValidationPipe } from "../../presentation/pipes/zod-validation.pipe.js";
@@ -21,6 +22,7 @@ import {
   TenantInviteAlreadyUsedError,
   TenantInviteExpiredError,
   TenantInviteInvalidError,
+  TenantOnboardingInvalidCredentialsError,
   TenantOnboardingUseCases,
 } from "../application/tenant-onboarding.use-cases.js";
 
@@ -61,6 +63,10 @@ export class AdminOnboardingController {
         error instanceof TenantInviteAlreadyUsedError
       ) {
         throw new ConflictException("Tenant invite is not usable");
+      }
+
+      if (error instanceof TenantOnboardingInvalidCredentialsError) {
+        throw new UnauthorizedException("Invalid onboarding credentials");
       }
 
       throw error;

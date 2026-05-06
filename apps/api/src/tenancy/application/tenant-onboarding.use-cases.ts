@@ -15,7 +15,7 @@ type Clock = () => Date;
 type TokenGenerator = () => string;
 
 export type TenantOnboardingAuth = {
-  createUser(input: {
+  createOrVerifyUser(input: {
     email: string;
     name: string;
     password: string;
@@ -51,7 +51,7 @@ export class TenantOnboardingUseCases {
 
   async acceptInvite(input: AcceptTenantInviteInput): Promise<AcceptedTenantInvite> {
     const invite = await this.requireUsableInvite(input.token);
-    const user = await this.auth.createUser({
+    const user = await this.auth.createOrVerifyUser({
       email: invite.adminEmail,
       name: input.name,
       password: input.password,
@@ -112,5 +112,12 @@ export class TenantInviteAlreadyUsedError extends Error {
   constructor() {
     super("Tenant invite was already used");
     this.name = "TenantInviteAlreadyUsedError";
+  }
+}
+
+export class TenantOnboardingInvalidCredentialsError extends Error {
+  constructor() {
+    super("Tenant onboarding credentials are invalid");
+    this.name = "TenantOnboardingInvalidCredentialsError";
   }
 }
