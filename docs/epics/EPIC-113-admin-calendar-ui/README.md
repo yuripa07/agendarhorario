@@ -1,9 +1,9 @@
 # EPIC-113: Admin calendar UI
 
-**Status:** 🚧 Planned
+**Status:** ✅ Done
 **Owner:** Yuri
 **Criado em:** 2026-05-05 21:11
-**Última atualização:** 2026-05-05 21:11
+**Última atualização:** 2026-05-05 21:18
 
 ## 🎯 Objetivo
 
@@ -41,22 +41,22 @@ O backend já possui autenticação administrativa com Better Auth e endpoint pr
 
 ## ✅ Critérios de pronto
 
-- [ ] `/admin/login` autentica com email e senha.
-- [ ] `/admin/calendar` redireciona usuário anônimo para login.
-- [ ] Usuário autenticado acessa a agenda sem novo login.
-- [ ] A agenda consulta `GET /admin/calendar/appointments`.
-- [ ] A visão diária usa janela UTC do dia selecionado.
-- [ ] A visão semanal usa janela UTC da semana selecionada.
-- [ ] Appointments confirmados e cancelados aparecem diferenciados.
-- [ ] Erros de autenticação e carregamento são recuperáveis.
-- [ ] A UI usa API tenant-aware e mantém `VITE_API_URL` como override.
-- [ ] Testes automatizados passam localmente.
+- [x] `/admin/login` autentica com email e senha.
+- [x] `/admin/calendar` redireciona usuário anônimo para login.
+- [x] Usuário autenticado acessa a agenda sem novo login.
+- [x] A agenda consulta `GET /admin/calendar/appointments`.
+- [x] A visão diária usa janela UTC do dia selecionado.
+- [x] A visão semanal usa janela UTC da semana selecionada.
+- [x] Appointments confirmados e cancelados aparecem diferenciados.
+- [x] Erros de autenticação e carregamento são recuperáveis.
+- [x] A UI usa API tenant-aware e mantém `VITE_API_URL` como override.
+- [x] Testes automatizados passam localmente.
 
 ## 🔗 User Stories
 
 | ID | Título | Status |
 |----|--------|--------|
-| [US-001](./US-001-admin-calendar-web/) | Visualizar agenda administrativa | 🚧 Planned |
+| [US-001](./US-001-admin-calendar-web/) | Visualizar agenda administrativa | ✅ Done |
 
 ## 📚 ADRs relacionados
 
@@ -68,3 +68,4 @@ O backend já possui autenticação administrativa com Better Auth e endpoint pr
 ## 📜 Histórico
 
 - 2026-05-05 21:11: planejado login administrativo mínimo e UI de agenda dia/semana.
+- 2026-05-05 21:18: implementada UI administrativa de login e agenda dia/semana.

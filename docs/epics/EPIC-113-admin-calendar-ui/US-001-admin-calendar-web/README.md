@@ -1,6 +1,6 @@
 # US-001: Visualizar agenda administrativa
 
-**Status:** 🚧 Planned
+**Status:** ✅ Done
 **EPIC:** [EPIC-113](../README.md)
 
 ## User Story
@@ -63,4 +63,4 @@
 
 | ID | Título | Status |
 |----|--------|--------|
-| [TASK-001](./TASK-001-admin-calendar-ui.md) | Criar login e agenda administrativa | 🚧 Planned |
+| [TASK-001](./TASK-001-admin-calendar-ui.md) | Criar login e agenda administrativa | ✅ Done |
