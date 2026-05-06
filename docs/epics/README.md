@@ -23,3 +23,4 @@
 | [EPIC-112](./EPIC-112-public-booking-management-ui/) | Public booking management UI | ✅ Done |
 | [EPIC-113](./EPIC-113-admin-calendar-ui/) | Admin calendar UI | ✅ Done |
 | [EPIC-114](./EPIC-114-admin-operational-settings/) | Admin operational settings | ✅ Done |
+| [EPIC-115](./EPIC-115-admin-calendar-actions/) | Admin calendar actions | ✅ Done |
