@@ -1,7 +1,21 @@
 import {
   type AdminCalendarAppointment,
   type AdminCalendarQuery,
+  type AvailabilityBlock,
   adminCalendarAppointmentSchema,
+  availabilityBlockSchema,
+  type CreateAvailabilityBlockInput,
+  type CreateServiceInput,
+  createServiceSchema,
+  type ReplaceWorkingHoursInput,
+  type Service,
+  serviceSchema,
+  type TenantBranding,
+  tenantBrandingSchema,
+  type UpdateServiceInput,
+  type UpdateTenantBrandingInput,
+  type WorkingHour,
+  workingHourSchema,
 } from "@agendarhorario/shared";
 import { z } from "zod";
 import { apiBaseUrl } from "../../shared/api/api-base-url.js";
@@ -71,6 +85,120 @@ export async function listAdminCalendarAppointments(
   return z.array(adminCalendarAppointmentSchema).parse(
     await request(`/admin/calendar/appointments?${params.toString()}`, {
       credentials: "include",
+    }),
+  );
+}
+
+export async function listAdminServices(): Promise<readonly Service[]> {
+  return z.array(serviceSchema).parse(
+    await request("/admin/services", {
+      credentials: "include",
+    }),
+  );
+}
+
+export async function createAdminService(input: CreateServiceInput): Promise<Service> {
+  return serviceSchema.parse(
+    await request("/admin/services", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(createServiceSchema.parse(input)),
+    }),
+  );
+}
+
+export async function updateAdminService(input: {
+  id: string;
+  data: UpdateServiceInput;
+}): Promise<Service> {
+  return serviceSchema.parse(
+    await request(`/admin/services/${input.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(input.data),
+    }),
+  );
+}
+
+export async function deactivateAdminService(id: string): Promise<Service> {
+  return serviceSchema.parse(
+    await request(`/admin/services/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    }),
+  );
+}
+
+export async function listAdminWorkingHours(): Promise<readonly WorkingHour[]> {
+  return z.array(workingHourSchema).parse(
+    await request("/admin/availability/working-hours", {
+      credentials: "include",
+    }),
+  );
+}
+
+export async function replaceAdminWorkingHours(
+  input: ReplaceWorkingHoursInput,
+): Promise<readonly WorkingHour[]> {
+  return z.array(workingHourSchema).parse(
+    await request("/admin/availability/working-hours", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(input),
+    }),
+  );
+}
+
+export async function listAdminAvailabilityBlocks(): Promise<readonly AvailabilityBlock[]> {
+  return z.array(availabilityBlockSchema).parse(
+    await request("/admin/availability/blocks", {
+      credentials: "include",
+    }),
+  );
+}
+
+export async function createAdminAvailabilityBlock(
+  input: CreateAvailabilityBlockInput,
+): Promise<AvailabilityBlock> {
+  return availabilityBlockSchema.parse(
+    await request("/admin/availability/blocks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(input),
+    }),
+  );
+}
+
+export async function deleteAdminAvailabilityBlock(id: string): Promise<AvailabilityBlock> {
+  return availabilityBlockSchema.parse(
+    await request(`/admin/availability/blocks/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    }),
+  );
+}
+
+export async function getAdminTenantBranding(): Promise<TenantBranding> {
+  return tenantBrandingSchema.parse(
+    await request("/admin/tenant/branding", {
+      credentials: "include",
+    }),
+  );
+}
+
+export async function updateAdminTenantBranding(
+  input: UpdateTenantBrandingInput,
+): Promise<TenantBranding> {
+  return tenantBrandingSchema.parse(
+    await request("/admin/tenant/branding", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(input),
     }),
   );
 }
