@@ -93,17 +93,22 @@ function createFetchHandler(options: { lookupStatus?: number } = {}) {
       }
 
       return json({
+        id: "11111111-1111-4111-8111-111111111111",
+        tenantId: "22222222-2222-4222-8222-222222222222",
         tenantSlug: "studio-bela",
         tenantDisplayName: "Studio Bela",
         adminEmail: "admin@studio.test",
         expiresAt: "2026-06-01T00:00:00.000Z",
+        usedAt: null,
       });
     }
 
     if (url === `${apiUrl}/admin/onboarding/accept` && init?.method === "POST") {
       return json({
+        tenantId: "22222222-2222-4222-8222-222222222222",
         tenantSlug: "studio-bela",
         adminEmail: "admin@studio.test",
+        userId: "user-1",
       });
     }
 

@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm";
-import { boolean, integer, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  integer,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 export const tenants = pgTable("tenants", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -137,6 +146,33 @@ export const appointments = pgTable("appointments", {
     .$onUpdate(() => sql`now()`),
 });
 
+export const tenantOnboardingInvites = pgTable("tenant_onboarding_invites", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id")
+    .notNull()
+    .references(() => tenants.id, { onDelete: "cascade" }),
+  adminEmail: varchar("admin_email", { length: 254 }).notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const adminTenantMemberships = pgTable(
+  "admin_tenant_memberships",
+  {
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: varchar("role", { length: 24 }).notNull().default("owner"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.tenantId, table.userId] })],
+);
+
 export type TenantRecord = typeof tenants.$inferSelect;
 export type NewTenantRecord = typeof tenants.$inferInsert;
 export type ServiceRecord = typeof services.$inferSelect;
@@ -147,3 +183,7 @@ export type AvailabilityBlockRecord = typeof availabilityBlocks.$inferSelect;
 export type NewAvailabilityBlockRecord = typeof availabilityBlocks.$inferInsert;
 export type AppointmentRecord = typeof appointments.$inferSelect;
 export type NewAppointmentRecord = typeof appointments.$inferInsert;
+export type TenantOnboardingInviteRecord = typeof tenantOnboardingInvites.$inferSelect;
+export type NewTenantOnboardingInviteRecord = typeof tenantOnboardingInvites.$inferInsert;
+export type AdminTenantMembershipRecord = typeof adminTenantMemberships.$inferSelect;
+export type NewAdminTenantMembershipRecord = typeof adminTenantMemberships.$inferInsert;

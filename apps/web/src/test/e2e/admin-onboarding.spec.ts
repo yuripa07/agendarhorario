@@ -1,15 +1,18 @@
 import { expect, test } from "@playwright/test";
 
-const apiUrl = process.env.VITE_API_URL ?? "http://localhost:3000";
+const apiUrl = "http://127.0.0.1:3000";
 
 test("first admin accepts a tenant onboarding invite", async ({ page }) => {
   await page.route(`${apiUrl}/admin/onboarding/lookup`, async (route) => {
     await route.fulfill({
       json: {
+        id: "11111111-1111-4111-8111-111111111111",
+        tenantId: "22222222-2222-4222-8222-222222222222",
         tenantSlug: "studio-bela",
         tenantDisplayName: "Studio Bela",
         adminEmail: "admin@studio.test",
         expiresAt: "2026-06-01T00:00:00.000Z",
+        usedAt: null,
       },
     });
   });
@@ -17,8 +20,10 @@ test("first admin accepts a tenant onboarding invite", async ({ page }) => {
   await page.route(`${apiUrl}/admin/onboarding/accept`, async (route) => {
     await route.fulfill({
       json: {
+        tenantId: "22222222-2222-4222-8222-222222222222",
         tenantSlug: "studio-bela",
         adminEmail: "admin@studio.test",
+        userId: "user-1",
       },
     });
   });

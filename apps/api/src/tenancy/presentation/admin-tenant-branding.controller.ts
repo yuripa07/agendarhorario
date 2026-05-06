@@ -11,6 +11,7 @@ import {
   Inject,
   NotFoundException,
   Patch,
+  UseGuards,
 } from "@nestjs/common";
 import { ZodValidationPipe } from "../../presentation/pipes/zod-validation.pipe.js";
 import {
@@ -18,8 +19,10 @@ import {
   TenantBrandingUseCases,
 } from "../application/tenant-branding.use-cases.js";
 import { TenantContextService } from "../application/tenant-context.service.js";
+import { AdminTenantMembershipGuard } from "./admin-tenant-membership.guard.js";
 
 @Controller("admin/tenant/branding")
+@UseGuards(AdminTenantMembershipGuard)
 export class AdminTenantBrandingController {
   constructor(
     @Inject(TenantContextService)

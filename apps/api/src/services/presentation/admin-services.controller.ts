@@ -17,14 +17,17 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from "@nestjs/common";
 import { ZodValidationPipe } from "../../presentation/pipes/zod-validation.pipe.js";
 import { TenantContextService } from "../../tenancy/application/tenant-context.service.js";
+import { AdminTenantMembershipGuard } from "../../tenancy/presentation/admin-tenant-membership.guard.js";
 import { ServiceCatalogUseCases } from "../application/service-catalog.use-cases.js";
 import { ServiceNotFoundError } from "../domain/service.errors.js";
 import { ADMIN_SERVICES_ROUTE } from "../services.constants.js";
 
 @Controller(ADMIN_SERVICES_ROUTE)
+@UseGuards(AdminTenantMembershipGuard)
 export class AdminServicesController {
   constructor(
     @Inject(TenantContextService)

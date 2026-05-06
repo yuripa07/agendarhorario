@@ -10,6 +10,7 @@ import { AdminAvailabilityPage } from "../pages/admin/admin-availability-page.js
 import { AdminBrandingPage } from "../pages/admin/admin-branding-page.js";
 import { AdminCalendarPage } from "../pages/admin/admin-calendar-page.js";
 import { AdminLoginPage } from "../pages/admin/admin-login-page.js";
+import { AdminOnboardingPage } from "../pages/admin/admin-onboarding-page.js";
 import { AdminServicesPage } from "../pages/admin/admin-services-page.js";
 import { BookingManagementPage } from "../pages/booking/booking-management-page.js";
 import { BookingPage } from "../pages/booking/booking-page.js";
@@ -45,6 +46,12 @@ const adminLoginRoute = createRoute({
   component: AdminLoginPage,
 });
 
+const adminOnboardingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/onboarding",
+  component: AdminOnboardingPage,
+});
+
 const adminCalendarRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/admin/calendar",
@@ -74,6 +81,7 @@ const routeTree = rootRoute.addChildren([
   bookingRoute,
   bookingManagementRoute,
   adminLoginRoute,
+  adminOnboardingRoute,
   adminCalendarRoute,
   adminServicesRoute,
   adminAvailabilityRoute,

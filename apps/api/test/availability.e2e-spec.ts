@@ -4,7 +4,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ADMIN_AVAILABILITY_ROUTE } from "../src/availability/availability.constants.js";
 import { DATABASE, type Database } from "../src/infrastructure/database/database.module.js";
-import { tenants, user } from "../src/infrastructure/database/schema.js";
+import { adminTenantMemberships, tenants, user } from "../src/infrastructure/database/schema.js";
 import { AppModule } from "../src/presentation/app.module.js";
 
 describe("Availability", () => {
@@ -31,16 +31,19 @@ describe("Availability", () => {
     database = moduleRef.get<Database>(DATABASE);
     server = app.getHttpServer();
 
-    await database.insert(tenants).values([
-      {
-        slug: tenantSlug,
-        displayName: "Availability Tenant",
-      },
-      {
-        slug: otherTenantSlug,
-        displayName: "Other Availability Tenant",
-      },
-    ]);
+    const [tenant] = await database
+      .insert(tenants)
+      .values([
+        {
+          slug: tenantSlug,
+          displayName: "Availability Tenant",
+        },
+        {
+          slug: otherTenantSlug,
+          displayName: "Other Availability Tenant",
+        },
+      ])
+      .returning();
 
     const authResponse = await request(server).post("/auth/sign-up/email").send({
       email: adminEmail,
@@ -56,6 +59,11 @@ describe("Availability", () => {
     if (!setCookie) {
       throw new AuthCookieMissingError();
     }
+
+    await database.insert(adminTenantMemberships).values({
+      tenantId: requireRecord(tenant).id,
+      userId: authResponse.body.user.id,
+    });
 
     sessionCookie = setCookie;
   });
@@ -104,13 +112,11 @@ describe("Availability", () => {
 
     expect(listed.body).toHaveLength(2);
 
-    const otherTenantListed = await request(server)
+    await request(server)
       .get(`/${ADMIN_AVAILABILITY_ROUTE}/working-hours`)
       .set("Host", otherTenantHost)
       .set("Cookie", sessionCookie)
-      .expect(200);
-
-    expect(otherTenantListed.body).toHaveLength(0);
+      .expect(403);
   });
 
   it("creates, lists and deletes availability blocks for the current tenant", async () => {
@@ -142,13 +148,11 @@ describe("Availability", () => {
     expect(listed.body).toHaveLength(1);
     expect(listed.body[0]).toMatchObject({ id: blockId });
 
-    const otherTenantDelete = await request(server)
+    await request(server)
       .delete(`/${ADMIN_AVAILABILITY_ROUTE}/blocks/${blockId}`)
       .set("Host", otherTenantHost)
       .set("Cookie", sessionCookie)
-      .expect(404);
-
-    expect(otherTenantDelete.body.message).toBe("Availability block not found");
+      .expect(403);
 
     await request(server)
       .delete(`/${ADMIN_AVAILABILITY_ROUTE}/blocks/${blockId}`)
@@ -171,4 +175,12 @@ class AuthCookieMissingError extends Error {
     super("Auth cookie missing from sign up response");
     this.name = "AuthCookieMissingError";
   }
+}
+
+function requireRecord<T>(record: T | undefined): T {
+  if (!record) {
+    throw new Error("Expected record to exist");
+  }
+
+  return record;
 }

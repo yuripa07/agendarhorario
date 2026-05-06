@@ -36,6 +36,13 @@
       "when": 1777853000000,
       "tag": "0004_customer_booking_flow",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778096000000,
+      "tag": "0005_tenant_onboarding",
+      "breakpoints": true
     }
   ]
 }

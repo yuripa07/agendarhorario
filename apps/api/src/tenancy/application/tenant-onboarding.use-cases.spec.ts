@@ -1,8 +1,4 @@
-import type {
-  AcceptTenantInviteInput,
-  CreateTenantInviteInput,
-  TenantInviteLookup,
-} from "@agendarhorario/shared";
+import type { CreateTenantInviteInput, TenantInviteLookup } from "@agendarhorario/shared";
 import { describe, expect, it } from "vitest";
 import {
   hashTenantInviteToken,
@@ -153,22 +149,23 @@ class FakeTenantOnboardingRepository implements TenantOnboardingRepository {
   async createAdminMembership(input: { tenantId: string; userId: string }): Promise<void> {
     this.memberships.push(input);
   }
+
+  async hasAdminMembership(input: { tenantId: string; userId: string }): Promise<boolean> {
+    return this.memberships.some(
+      (membership) => membership.tenantId === input.tenantId && membership.userId === input.userId,
+    );
+  }
 }
 
 class FakeTenantOnboardingAuth implements TenantOnboardingAuth {
-  createdUsers: AcceptTenantInviteInput[] = [];
+  createdUsers: Array<{ email: string; name: string; password: string }> = [];
 
-  async createUser(input: AcceptTenantInviteInput & { email: string }) {
+  async createUser(input: { email: string; name: string; password: string }) {
     this.createdUsers.push({
-      name: input.name,
-      password: input.password,
-    } as AcceptTenantInviteInput & { email: string });
-
-    this.createdUsers[0] = {
       email: input.email,
       name: input.name,
       password: input.password,
-    } as AcceptTenantInviteInput & { email: string };
+    });
 
     return { id: "user-1", email: input.email };
   }
