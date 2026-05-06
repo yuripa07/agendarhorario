@@ -24,4 +24,4 @@
 | [EPIC-113](./EPIC-113-admin-calendar-ui/) | Admin calendar UI | ✅ Done |
 | [EPIC-114](./EPIC-114-admin-operational-settings/) | Admin operational settings | ✅ Done |
 | [EPIC-115](./EPIC-115-admin-calendar-actions/) | Admin calendar actions | ✅ Done |
-| [EPIC-116](./EPIC-116-tenant-onboarding/) | Tenant onboarding | Planned |
+| [EPIC-116](./EPIC-116-tenant-onboarding/) | Tenant onboarding | ✅ Done |

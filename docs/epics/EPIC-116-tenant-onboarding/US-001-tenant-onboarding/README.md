@@ -1,6 +1,6 @@
 # US-001: Provisionar tenant por convite
 
-**Status:** Planned
+**Status:** ✅ Done
 
 ## História
 

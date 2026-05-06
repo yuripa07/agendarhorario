@@ -1,9 +1,9 @@
 # EPIC-116: Tenant onboarding
 
-**Status:** Planned
+**Status:** ✅ Done
 **Owner:** Yuri
 **Criado em:** 2026-05-06
-**Última atualização:** 2026-05-06
+**Última atualização:** 2026-05-06 20:37
 
 ## Objetivo
 
@@ -39,22 +39,22 @@ Hoje os testes criam usuarios e tenants diretamente, e o guia operacional ainda 
 
 ## Critérios de pronto
 
-- [ ] Operador cria convite por CLI sem gravar token puro.
-- [ ] Convite valido permite criar o primeiro admin do tenant.
-- [ ] Convite invalido, expirado ou usado e rejeitado.
-- [ ] Convite so pode ser usado uma vez.
-- [ ] Usuario autenticado so acessa endpoints admin dos tenants vinculados.
-- [ ] Usuario autenticado sem vinculo recebe `403`.
-- [ ] Usuario anonimo continua recebendo `401`.
-- [ ] UI de onboarding trata estados de carregamento, erro e sucesso.
-- [ ] Guia operacional descreve o novo fluxo.
-- [ ] Testes automatizados passam localmente.
+- [x] Operador cria convite por CLI sem gravar token puro.
+- [x] Convite valido permite criar o primeiro admin do tenant.
+- [x] Convite invalido, expirado ou usado e rejeitado.
+- [x] Convite so pode ser usado uma vez.
+- [x] Usuario autenticado so acessa endpoints admin dos tenants vinculados.
+- [x] Usuario autenticado sem vinculo recebe `403`.
+- [x] Usuario anonimo continua recebendo `401`.
+- [x] UI de onboarding trata estados de carregamento, erro e sucesso.
+- [x] Guia operacional descreve o novo fluxo.
+- [x] Testes automatizados passam localmente.
 
 ## User Stories
 
 | ID | Título | Status |
 |----|--------|--------|
-| [US-001](./US-001-tenant-onboarding/) | Provisionar tenant por convite | Planned |
+| [US-001](./US-001-tenant-onboarding/) | Provisionar tenant por convite | ✅ Done |
 
 ## ADRs relacionados
 
@@ -67,3 +67,4 @@ Hoje os testes criam usuarios e tenants diretamente, e o guia operacional ainda 
 ## Histórico
 
 - 2026-05-06: planejado onboarding controlado de tenant por convite.
+- 2026-05-06 20:37: implementado onboarding controlado por convite com CLI, UI, membership admin-tenant e autorizacao por tenant.
