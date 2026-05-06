@@ -1,13 +1,17 @@
 import {
   type AdminCalendarAppointment,
   type AdminCalendarQuery,
+  type AdminCalendarSlot,
   type AvailabilityBlock,
   adminCalendarAppointmentSchema,
   availabilityBlockSchema,
+  type CreateAdminAppointmentInput,
   type CreateAvailabilityBlockInput,
   type CreateServiceInput,
   createServiceSchema,
+  publicSlotSchema,
   type ReplaceWorkingHoursInput,
+  type RescheduleAdminAppointmentInput,
   type Service,
   serviceSchema,
   type TenantBranding,
@@ -84,6 +88,63 @@ export async function listAdminCalendarAppointments(
 
   return z.array(adminCalendarAppointmentSchema).parse(
     await request(`/admin/calendar/appointments?${params.toString()}`, {
+      credentials: "include",
+    }),
+  );
+}
+
+export async function listAdminCalendarSlots(input: {
+  serviceId: string;
+  query: AdminCalendarQuery;
+}): Promise<readonly AdminCalendarSlot[]> {
+  const params = new URLSearchParams({
+    startsAt: input.query.startsAt.toISOString(),
+    endsAt: input.query.endsAt.toISOString(),
+  });
+
+  return z.array(publicSlotSchema).parse(
+    await request(`/admin/calendar/services/${input.serviceId}/slots?${params.toString()}`, {
+      credentials: "include",
+    }),
+  );
+}
+
+export async function createAdminAppointment(
+  input: CreateAdminAppointmentInput,
+): Promise<AdminCalendarAppointment> {
+  return adminCalendarAppointmentSchema.parse(
+    await request("/admin/calendar/appointments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        ...input,
+        startsAt: input.startsAt.toISOString(),
+      }),
+    }),
+  );
+}
+
+export async function rescheduleAdminAppointment(input: {
+  id: string;
+  data: RescheduleAdminAppointmentInput;
+}): Promise<AdminCalendarAppointment> {
+  return adminCalendarAppointmentSchema.parse(
+    await request(`/admin/calendar/appointments/${input.id}/reschedule`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        startsAt: input.data.startsAt.toISOString(),
+      }),
+    }),
+  );
+}
+
+export async function cancelAdminAppointment(id: string): Promise<AdminCalendarAppointment> {
+  return adminCalendarAppointmentSchema.parse(
+    await request(`/admin/calendar/appointments/${id}/cancel`, {
+      method: "POST",
       credentials: "include",
     }),
   );

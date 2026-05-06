@@ -53,9 +53,9 @@ import { PublicBookingController } from "./presentation/public-booking.controlle
     },
     {
       provide: AdminCalendarUseCases,
-      inject: [ADMIN_CALENDAR_REPOSITORY],
-      useFactory: (repository: DrizzleAdminCalendarRepository) =>
-        new AdminCalendarUseCases(repository),
+      inject: [ADMIN_CALENDAR_REPOSITORY, BOOKING_NOTIFICATION_SENDER],
+      useFactory: (repository: DrizzleAdminCalendarRepository, sender: BookingNotificationSender) =>
+        new AdminCalendarUseCases(repository, sender),
     },
   ],
   exports: [BOOKING_NOTIFICATION_SENDER],

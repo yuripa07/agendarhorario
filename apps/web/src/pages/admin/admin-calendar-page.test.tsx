@@ -76,6 +76,80 @@ describe("AdminCalendarPage", () => {
       }),
     );
   });
+
+  it("creates an admin appointment from an available slot", async () => {
+    const fetchMock = vi.mocked(fetch);
+    renderAdminCalendarPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Novo agendamento" }));
+
+    expect(await screen.findByLabelText("Novo agendamento")).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("radio", { name: "09:00" }));
+    fireEvent.change(screen.getByLabelText("Nome"), { target: { value: "Novo Cliente" } });
+    fireEvent.change(screen.getByLabelText("Telefone"), { target: { value: "+5511555555555" } });
+    fireEvent.change(screen.getByLabelText("E-mail"), { target: { value: "novo@example.com" } });
+    fireEvent.click(screen.getByRole("button", { name: "Criar agendamento" }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        `${apiUrl}/admin/calendar/appointments`,
+        expect.objectContaining({
+          method: "POST",
+          credentials: "include",
+          body: JSON.stringify({
+            serviceId,
+            startsAt: "2026-05-05T12:00:00.000Z",
+            customerName: "Novo Cliente",
+            customerEmail: "novo@example.com",
+            customerPhone: "+5511555555555",
+          }),
+        }),
+      ),
+    );
+  });
+
+  it("reschedules and cancels confirmed appointments", async () => {
+    const fetchMock = vi.mocked(fetch);
+    renderAdminCalendarPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Remarcar" }));
+    fireEvent.click(await screen.findByRole("radio", { name: "10:00" }));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar remarcacao" }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        `${apiUrl}/admin/calendar/appointments/${appointmentId}/reschedule`,
+        expect.objectContaining({
+          method: "POST",
+          credentials: "include",
+          body: JSON.stringify({ startsAt: "2026-05-05T13:00:00.000Z" }),
+        }),
+      ),
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: "Cancelar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar agendamento" }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        `${apiUrl}/admin/calendar/appointments/${appointmentId}/cancel`,
+        expect.objectContaining({
+          method: "POST",
+          credentials: "include",
+        }),
+      ),
+    );
+  });
+
+  it("does not show actions for canceled appointments", async () => {
+    renderAdminCalendarPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Semana" }));
+
+    expect(await screen.findByText("Ana Souza")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Remarcar" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Cancelar" })).toHaveLength(1);
+  });
 });
 
 function renderAdminCalendarPage(): void {
@@ -109,7 +183,82 @@ function createFetchHandler(options: { sessionStatus?: number } = {}) {
       return json({ user: { email: "admin@example.com", name: "Admin" } });
     }
 
-    if (url.startsWith(`${apiUrl}/admin/calendar/appointments`)) {
+    if (url === `${apiUrl}/admin/services`) {
+      return json([
+        {
+          id: serviceId,
+          tenantId,
+          name: "Consulta",
+          durationMinutes: 60,
+          priceCents: 12000,
+          isActive: true,
+          createdAt: "2026-05-01T12:00:00.000Z",
+          updatedAt: "2026-05-01T12:00:00.000Z",
+        },
+      ]);
+    }
+
+    if (url.startsWith(`${apiUrl}/admin/calendar/services/${serviceId}/slots`)) {
+      return json([
+        {
+          startsAt: "2026-05-05T12:00:00.000Z",
+          endsAt: "2026-05-05T13:00:00.000Z",
+          score: 0,
+          isAdjacent: false,
+        },
+        {
+          startsAt: "2026-05-05T13:00:00.000Z",
+          endsAt: "2026-05-05T14:00:00.000Z",
+          score: 1,
+          isAdjacent: false,
+        },
+      ]);
+    }
+
+    if (url === `${apiUrl}/admin/calendar/appointments` && init?.method === "POST") {
+      return json(
+        appointment({
+          id: "55555555-5555-4555-8555-555555555555",
+          customerName: "Novo Cliente",
+          startsAt: "2026-05-05T12:00:00.000Z",
+          endsAt: "2026-05-05T13:00:00.000Z",
+          status: "confirmed",
+        }),
+      );
+    }
+
+    if (
+      url === `${apiUrl}/admin/calendar/appointments/${appointmentId}/reschedule` &&
+      init?.method === "POST"
+    ) {
+      return json(
+        appointment({
+          id: appointmentId,
+          customerName: "Maria Silva",
+          startsAt: "2026-05-05T13:00:00.000Z",
+          endsAt: "2026-05-05T14:00:00.000Z",
+          status: "confirmed",
+        }),
+      );
+    }
+
+    if (
+      url === `${apiUrl}/admin/calendar/appointments/${appointmentId}/cancel` &&
+      init?.method === "POST"
+    ) {
+      return json(
+        appointment({
+          id: appointmentId,
+          customerName: "Maria Silva",
+          startsAt: "2026-05-05T12:00:00.000Z",
+          endsAt: "2026-05-05T13:00:00.000Z",
+          status: "canceled",
+          canceledAt: "2026-05-05T12:30:00.000Z",
+        }),
+      );
+    }
+
+    if (url.startsWith(`${apiUrl}/admin/calendar/appointments`) && !init?.method) {
       const requestedUrl = new URL(url);
       const startsAt = new Date(requestedUrl.searchParams.get("startsAt") ?? "");
       const endsAt = new Date(requestedUrl.searchParams.get("endsAt") ?? "");

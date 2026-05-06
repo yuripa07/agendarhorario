@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { appointmentIdSchema, appointmentStatusSchema, utcInstantSchema } from "./booking.js";
+import {
+  appointmentIdSchema,
+  appointmentStatusSchema,
+  type publicSlotSchema,
+  utcInstantSchema,
+} from "./booking.js";
 import { serviceIdSchema } from "./service.js";
 
 export const adminCalendarQuerySchema = z
@@ -27,5 +32,20 @@ export const adminCalendarAppointmentSchema = z.object({
   canceledAt: z.coerce.date().nullable(),
 });
 
+export const createAdminAppointmentSchema = z.object({
+  serviceId: serviceIdSchema,
+  startsAt: utcInstantSchema,
+  customerName: z.string().trim().min(1).max(120),
+  customerEmail: z.string().trim().email().max(254),
+  customerPhone: z.string().trim().min(8).max(32),
+});
+
+export const rescheduleAdminAppointmentSchema = z.object({
+  startsAt: utcInstantSchema,
+});
+
 export type AdminCalendarQuery = z.infer<typeof adminCalendarQuerySchema>;
 export type AdminCalendarAppointment = z.infer<typeof adminCalendarAppointmentSchema>;
+export type AdminCalendarSlot = z.infer<typeof publicSlotSchema>;
+export type CreateAdminAppointmentInput = z.infer<typeof createAdminAppointmentSchema>;
+export type RescheduleAdminAppointmentInput = z.infer<typeof rescheduleAdminAppointmentSchema>;
