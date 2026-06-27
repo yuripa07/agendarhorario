@@ -1,4 +1,4 @@
-FROM node:24.15.0-alpine AS base
+FROM node:24.18.0-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -18,7 +18,7 @@ RUN pnpm --filter @agendarhorario/shared build
 RUN pnpm --filter @agendarhorario/api build
 RUN pnpm deploy --filter @agendarhorario/api --prod --legacy /prod/api
 
-FROM node:24.15.0-alpine AS runtime
+FROM node:24.18.0-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
